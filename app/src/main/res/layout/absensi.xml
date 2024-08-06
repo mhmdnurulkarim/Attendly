@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        tools:context=".Absensi">
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@color/greenBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/sectionA"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:background="@drawable/shadowed_line"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/frameLayout" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/frameLayout"
+            app:layout_constraintVertical_bias="0.7">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="PERGUDANGAN LIO ASRI\nBARU TANGERANG"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginTop="20dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:background="@drawable/rect_blank_radius_green">
+
+                <TextView
+                    android:id="@+id/txtTanggal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="Senin, 28 November 2023  07:30:12"
+                    android:textColor="#494949"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/frameLayout"
+            android:paddingHorizontal="30dp"
+            app:layout_constraintVertical_bias="0.1">
+
+            <TextView
+                android:id="@+id/txtIDKaryawan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_regular"
+                android:text="ID Karyawan"
+                android:textColor="#013A1A"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txtNamaKaryawan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_regular"
+                android:text="Nama Karyawan"
+                android:layout_marginTop="5dp"
+                android:textColor="#013A1A"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txtNikKaryawan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_regular"
+                android:text="NIK Karyawan"
+                android:layout_marginTop="5dp"
+                android:textColor="#013A1A"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txtDivisiKaryawan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_regular"
+                android:text="Divisi Karyawan"
+                android:layout_marginTop="5dp"
+                android:textColor="#013A1A"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/txtRoleKaryawan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_regular"
+                android:text="Role Karyawan"
+                android:layout_marginTop="5dp"
+                android:textColor="#013A1A"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frameLayout"
+            app:layout_constraintVertical_bias="0.8">
+
+            <RelativeLayout
+                android:id="@+id/btnDatang"
+                android:layout_width="230dp"
+                android:layout_height="65dp"
+                android:layout_gravity="center"
+                android:background="@drawable/rect_green_radius_smaller">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/inter_bold"
+                    android:text="DATANG"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/btnPulang"
+                android:layout_width="230dp"
+                android:layout_height="65dp"
+                android:layout_marginTop="15dp"
+                android:layout_gravity="center"
+                android:background="@drawable/rect_red_radius_smaller">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/inter_bold"
+                    android:text="PULANG"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
