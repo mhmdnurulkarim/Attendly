@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "261166613375",
+    "project_id": "presensi-bfc85",
+    "storage_bucket": "presensi-bfc85.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261166613375:android:1548299f5927a545e0504a",
+        "android_client_info": {
+          "package_name": "com.oci.presensi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBye-KUjGM_rUur6c-tHJNZT53_T_2HUPQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

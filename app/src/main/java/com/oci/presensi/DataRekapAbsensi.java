@@ -1,0 +1,76 @@
+package com.oci.presensi;
+
+import static com.oci.presensi.util.Utils.getPeriode;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.oci.presensi.adapter.AdapterDataAbsensi;
+import com.oci.presensi.databinding.DataRekapAbsensiBinding;
+import com.oci.presensi.helper.DataHelper;
+import com.oci.presensi.model.ModelAkun;
+import com.oci.presensi.util.RecyclerItemClickListener;
+
+import java.util.Calendar;
+import java.util.List;
+
+public class DataRekapAbsensi extends AppCompatActivity {
+
+    DataRekapAbsensiBinding binding;
+    DataHelper dbHelper;
+    List<ModelAkun> listPegawai;
+    Calendar calendar;
+    int date, month;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.setContentView(this, R.layout.data_rekap_absensi);
+
+        calendar = Calendar.getInstance();
+        date = calendar.get(Calendar.DAY_OF_MONTH);
+        month = calendar.get(Calendar.MONTH);
+        dbHelper = new DataHelper(this);
+        listPegawai = dbHelper.getAllAkun();
+
+        binding.textTitle.setText("DATA REKAP ABSENSI");
+        binding.txtPeriode.setText("Periode " + getPeriode());
+
+        if (!listPegawai.isEmpty()) {
+            AdapterDataAbsensi itemList = new AdapterDataAbsensi(listPegawai);
+            binding.rvDataRekapAbsensi.setLayoutManager(new LinearLayoutManager(DataRekapAbsensi.this));
+            binding.rvDataRekapAbsensi.setAdapter(itemList);
+            binding.rvDataRekapAbsensi.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), binding.rvDataRekapAbsensi,
+                    new RecyclerItemClickListener.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            Intent intent = new Intent(DataRekapAbsensi.this, DataRekapAbsensiDetail.class);
+                            intent.putExtra("idUser", listPegawai.get(position).getIdUser());
+                            startActivity(intent);
+                            finish();
+                        }
+
+                        @Override
+                        public void onLongItemClick(View view, int position) {
+
+                        }
+                    }));
+        } else {
+            Toast.makeText(this, "anda belum memiliki data absensi", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent a = new Intent(DataRekapAbsensi.this, HomeActivity.class);
+        startActivity(a);
+        finish();
+    }
+}
