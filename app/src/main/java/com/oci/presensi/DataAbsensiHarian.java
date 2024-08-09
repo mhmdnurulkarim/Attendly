@@ -86,7 +86,7 @@ public class DataAbsensiHarian extends AppCompatActivity {
             }
         }
 
-        if (listAbsensiToday.size() > 0) {
+        if (!listAbsensiToday.isEmpty()) {
             AdapterDataAbsensiHarian itemList = new AdapterDataAbsensiHarian(listAbsensiToday, dbHelper);
             binding.rvDataAbsensiHarian.setLayoutManager(new LinearLayoutManager(DataAbsensiHarian.this));
             binding.rvDataAbsensiHarian.setAdapter(itemList);

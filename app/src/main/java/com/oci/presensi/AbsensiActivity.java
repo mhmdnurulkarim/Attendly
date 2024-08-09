@@ -3,14 +3,12 @@ package com.oci.presensi;
 import static com.oci.presensi.util.Utils.getDate;
 import static com.oci.presensi.util.Utils.getDateTime;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 
 import com.oci.presensi.databinding.ActivityAbsensiBinding;
 import com.oci.presensi.helper.DataHelper;
@@ -114,7 +112,7 @@ public class AbsensiActivity extends AppCompatActivity {
         builder.setTitle("ABSEN PULANG");
         builder.setMessage("Lakukan absensi pulang?");
         builder.setPositiveButton("YA", (dialog, which) -> {
-            int id = dbHelper.getLastIdAbsensi() + 1; // Assuming id should be incremented
+            int id = dbHelper.getLastIdAbsensi(); // Assuming id should be incremented
             String now = getDateTime();
             int idAkun = PreferenceUtils.getIdAkun(getApplicationContext());
             dbHelper.saveAttendance(id, now, idAkun, "PULANG");

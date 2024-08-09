@@ -21,7 +21,7 @@ import java.util.Map;
 public class DataHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "presensi.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
 
     public DataHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -31,7 +31,7 @@ public class DataHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         String CREATE_TABLE_AKUN = "create table akun(" +
-                "id_user integer primary key autoincrement, " +
+                "id_user integer primary key, " +
                 "username text, " +
                 "password text, " +
                 "id_role integer, " +
@@ -292,31 +292,55 @@ public class DataHelper extends SQLiteOpenHelper {
                 .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
     }
 
-    public void getAttendanceFromFirestore(int userId, FirestoreCallback callback) {
+    public void getAttendanceFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("absensi").document(String.valueOf(userId))
-                .collection("absensiUser")
+        db.collectionGroup("absensiUser") // Mengambil semua dokumen dari subkoleksi "absensiUser"
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<ModelAbsensi> attendanceList = new ArrayList<>();
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             ModelAbsensi attendance = document.toObject(ModelAbsensi.class);
-                            attendanceList.add(attendance);
+
+                            // Mengecek apakah data dengan id_absensi sudah ada
+                            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM absensi WHERE id_absensi = ?", new String[]{String.valueOf(attendance.getId_absensi())});
+
+                            if (cursor != null && cursor.moveToFirst()) {
+                                // Jika data sudah ada, lakukan update
+                                sqLiteDatabase.execSQL("UPDATE absensi SET " +
+                                        "timestamp = '" + attendance.getTimestamp() + "', " +
+                                        "id_user = '" + attendance.getId_user() + "', " +
+                                        "keterangan = '" + attendance.getKeterangan() + "' " +
+                                        "WHERE id_absensi = '" + attendance.getId_absensi() + "'");
+                            } else {
+                                // Jika data belum ada, lakukan insert
+                                sqLiteDatabase.execSQL("INSERT INTO absensi (id_absensi, timestamp, id_user, keterangan) VALUES ('" +
+                                        attendance.getId_absensi() + "','" +
+                                        attendance.getTimestamp() + "','" +
+                                        attendance.getId_user() + "','" +
+                                        attendance.getKeterangan() + "')");
+                            }
+
+                            if (cursor != null) {
+                                cursor.close();
+                            }
                         }
-                        callback.onCallback(attendanceList);
+
+                        sqLiteDatabase.close();
                     } else {
-                        Log.w("Firestore", "Error getting documents.", task.getException());
+                        Log.w("Firestore", "Error getting attendance documents.", task.getException());
                     }
                 });
     }
+
 
     public void fetchAttendanceData(int userId, FetchAttendanceCallback callback) {
         List<ModelAbsensi> localAbsensi = getAllAbsensi();
         List<ModelAbsensi> combinedAbsensi = new ArrayList<>(localAbsensi);
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection("absensi")
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("absensi")
                 .whereEqualTo("id_user", userId)
                 .get()
                 .addOnCompleteListener(task -> {

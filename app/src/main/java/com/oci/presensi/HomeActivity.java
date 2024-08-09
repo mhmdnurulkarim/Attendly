@@ -3,17 +3,26 @@ package com.oci.presensi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.oci.presensi.databinding.ActivityHomeBinding;
+import com.oci.presensi.helper.DataHelper;
+import com.oci.presensi.helper.FirestoreCallback;
+import com.oci.presensi.model.ModelAbsensi;
 import com.oci.presensi.util.PreferenceUtils;
+
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
     ActivityHomeBinding binding;
+    DataHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +30,14 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        dbHelper = new DataHelper(this);
+        dbHelper.getAttendanceFromFirestore();
+
+        setupUI();
+        setupListeners();
+    }
+
+    private void setupUI() {
         if (PreferenceUtils.getIdRole(getApplicationContext()) == 3) {
             binding.btnDataKaryawan.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.rect_gray_radius_smaller));
             binding.btnDataRekapAbsensi.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.rect_gray_radius_smaller));
@@ -28,7 +45,9 @@ public class HomeActivity extends AppCompatActivity {
 
         binding.txtIDKaryawan.setText("ID Karyawan : " + PreferenceUtils.getIdRole(getApplicationContext()));
         binding.txtNamaKaryawan.setText("Nama Karyawan : " + PreferenceUtils.getNama(getApplicationContext()));
+    }
 
+    private void setupListeners() {
         binding.btnAbsensi.setOnClickListener(v -> {
             Intent a = new Intent(HomeActivity.this, AbsensiActivity.class);
             startActivity(a);
@@ -36,8 +55,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         binding.btnDataKaryawan.setOnClickListener(v -> {
-            if (PreferenceUtils.getIdRole(getApplicationContext()) == 3) {
-            } else {
+            if (PreferenceUtils.getIdRole(getApplicationContext()) != 3) {
                 Intent a = new Intent(HomeActivity.this, DataKaryawan.class);
                 startActivity(a);
                 finish();
@@ -51,8 +69,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         binding.btnDataRekapAbsensi.setOnClickListener(v -> {
-            if (PreferenceUtils.getIdRole(getApplicationContext()) == 3) {
-            } else {
+            if (PreferenceUtils.getIdRole(getApplicationContext()) != 3) {
                 Intent a = new Intent(HomeActivity.this, DataRekapAbsensi.class);
                 startActivity(a);
                 finish();
