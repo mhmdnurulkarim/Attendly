@@ -4,11 +4,17 @@ import static com.oci.presensi.util.Utils.getPeriode;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import com.oci.presensi.adapter.AdapterDataRekapAbsensiDetail;
 import com.oci.presensi.databinding.ActivityDataRekapAbsensiDetailBinding;
 import com.oci.presensi.helper.DataHelper;
@@ -16,6 +22,7 @@ import com.oci.presensi.model.ModelAbsensi;
 import com.oci.presensi.model.ModelAbsensiFetch;
 import com.oci.presensi.model.ModelAkun;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +52,14 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
         if (!listAbsensi.isEmpty()) {
             setupRecyclerView();
         }
+
+        binding.print.setOnClickListener(v -> {
+            if (listAbsensi == null || listAbsensi.isEmpty()) {
+                Toast.makeText(this, "Tidak ada data absensi yang tersedia.", Toast.LENGTH_SHORT).show();
+            } else {
+                savePdf(akun, listAbsensi);
+            }
+        });
 
         setupBackPressedHandler();
     }
@@ -91,6 +106,38 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
 
         return new ArrayList<>(absensiMap.values());
     }
+
+    private void savePdf(ModelAkun akun, List<ModelAbsensi> listAbsensi) {
+        try {
+            File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            String fileName = "RekapAbsensi_" + akun.getNama() + ".pdf";
+            File file = new File(downloadDir, fileName);
+
+            PdfWriter writer = new PdfWriter(file);
+            PdfDocument pdfDocument = new PdfDocument(writer);
+            Document document = new Document(pdfDocument);
+
+            document.add(new Paragraph("Rekap Absensi"));
+            document.add(new Paragraph("Nama: " + akun.getNama()));
+            document.add(new Paragraph("ID: " + akun.getIdUser()));
+            document.add(new Paragraph("Divisi: " + akun.getDivisi()));
+            document.add(new Paragraph("Periode: " + getPeriode()));
+            document.add(new Paragraph(" "));
+
+            for (ModelAbsensi absensi : listAbsensi) {
+                document.add(new Paragraph("Tanggal: " + absensi.getTimestamp() +
+                        " - Keterangan: " + absensi.getKeterangan()));
+            }
+
+            document.close();
+            Toast.makeText(this, "PDF disimpan di " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Gagal membuat PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private void setupBackPressedHandler() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

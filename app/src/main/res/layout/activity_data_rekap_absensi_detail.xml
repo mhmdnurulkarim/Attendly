@@ -7,6 +7,19 @@
     android:background="@color/white"
     tools:context=".DataRekapAbsensiDetailActivity">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/print"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/greenBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/greenText"
+        app:srcCompat="@drawable/ic_receipt"
+        app:tint="@color/black"
+        tools:ignore="ContentDescription" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/card"
         android:layout_width="match_parent"
