@@ -2,13 +2,21 @@ package com.oci.presensi;
 
 import static com.oci.presensi.util.Utils.getPeriode;
 
-import android.content.Intent;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -22,7 +30,8 @@ import com.oci.presensi.model.ModelAbsensi;
 import com.oci.presensi.model.ModelAbsensiFetch;
 import com.oci.presensi.model.ModelAkun;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +41,7 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
 
     private ActivityDataRekapAbsensiDetailBinding binding;
     private DataHelper dbHelper;
+    private ModelAkun akun;
     private List<ModelAbsensi> listAbsensi;
 
     @Override
@@ -40,12 +50,12 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
         binding = ActivityDataRekapAbsensiDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Intent intent = getIntent();
-        int id = intent.getIntExtra("idUser", 0);
+        int id = getIntent().getIntExtra("idUser", 0);
 
         dbHelper = new DataHelper(this);
+        dbHelper.getAttendanceFromFirestore();
         listAbsensi = dbHelper.getAllAbsensiByIdUser(id);
-        ModelAkun akun = dbHelper.getAkun(id);
+        akun = dbHelper.getAkun(id);
 
         setTextViews(akun);
 
@@ -57,7 +67,7 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
             if (listAbsensi == null || listAbsensi.isEmpty()) {
                 Toast.makeText(this, "Tidak ada data absensi yang tersedia.", Toast.LENGTH_SHORT).show();
             } else {
-                savePdf(akun, listAbsensi);
+                checkPermissionAndPrint();
             }
         });
 
@@ -88,20 +98,16 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
             ModelAbsensiFetch absensiFetch = absensiMap.get(userId);
 
             if (absensiFetch == null) {
-                if (absensi.getKeterangan().equalsIgnoreCase("DATANG")) {
-                    absensiFetch = new ModelAbsensiFetch(userId, absensi.getTimestamp(), null);
-                } else if (absensi.getKeterangan().equalsIgnoreCase("PULANG")) {
-                    absensiFetch = new ModelAbsensiFetch(userId, null, absensi.getTimestamp());
-                }
-                absensiMap.put(userId, absensiFetch);
-            } else {
-                if (absensi.getKeterangan().equalsIgnoreCase("DATANG")) {
-                    absensiFetch = new ModelAbsensiFetch(userId, absensi.getTimestamp(), absensiFetch.getPulangTimestamp());
-                } else if (absensi.getKeterangan().equalsIgnoreCase("PULANG")) {
-                    absensiFetch = new ModelAbsensiFetch(userId, absensiFetch.getDatangTimestamp(), absensi.getTimestamp());
-                }
-                absensiMap.put(userId, absensiFetch);
+                absensiFetch = new ModelAbsensiFetch(userId, null, null);
             }
+
+            if (absensi.getKeterangan().equalsIgnoreCase("DATANG")) {
+                absensiFetch = new ModelAbsensiFetch(userId, absensi.getTimestamp(), absensiFetch.getPulangTimestamp());
+            } else if (absensi.getKeterangan().equalsIgnoreCase("PULANG")) {
+                absensiFetch = new ModelAbsensiFetch(userId, absensiFetch.getDatangTimestamp(), absensi.getTimestamp());
+            }
+
+            absensiMap.put(userId, absensiFetch);
         }
 
         return new ArrayList<>(absensiMap.values());
@@ -109,11 +115,24 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
 
     private void savePdf(ModelAkun akun, List<ModelAbsensi> listAbsensi) {
         try {
-            File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             String fileName = "RekapAbsensi_" + akun.getNama() + ".pdf";
-            File file = new File(downloadDir, fileName);
 
-            PdfWriter writer = new PdfWriter(file);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/Presensi");
+
+            Uri uri = getContentResolver().insert(MediaStore.Files.getContentUri("external"), contentValues);
+            if (uri == null) {
+                throw new IOException("Failed to create new MediaStore record.");
+            }
+
+            OutputStream outputStream = getContentResolver().openOutputStream(uri);
+            if (outputStream == null) {
+                throw new IOException("Failed to get output stream.");
+            }
+
+            PdfWriter writer = new PdfWriter(outputStream);
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument);
 
@@ -130,14 +149,28 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
             }
 
             document.close();
-            Toast.makeText(this, "PDF disimpan di " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-
+            outputStream.close();
+            Toast.makeText(this, "PDF disimpan di Download", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Gagal membuat PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
+    @SuppressLint("ObsoleteSdkInt")
+    private void checkPermissionAndPrint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            savePdf(akun, listAbsensi);
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                savePdf(akun, listAbsensi);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
+    }
 
     private void setupBackPressedHandler() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

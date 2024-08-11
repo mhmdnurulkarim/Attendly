@@ -27,6 +27,7 @@ public class DataKaryawanActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         dbHelper = new DataHelper(this);
+        dbHelper.getAttendanceFromFirestore();
         listPegawai = dbHelper.getAllPegawai(3);
 
         setupRecyclerView();

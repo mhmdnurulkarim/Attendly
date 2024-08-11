@@ -29,6 +29,7 @@ public class DataRekapAbsensiActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         dbHelper = new DataHelper(this);
+        dbHelper.getAttendanceFromFirestore();
         listPegawai = dbHelper.getAllAkun();
 
         binding.textTitle.setText("DATA REKAP ABSENSI");

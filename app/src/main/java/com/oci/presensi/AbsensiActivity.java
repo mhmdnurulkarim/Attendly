@@ -31,6 +31,7 @@ public class AbsensiActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         dbHelper = new DataHelper(this);
+        dbHelper.getAttendanceFromFirestore();
         initializeAbsensiList();
 
         setupKaryawanInfo();

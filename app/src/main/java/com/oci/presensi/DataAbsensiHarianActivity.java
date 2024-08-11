@@ -34,6 +34,7 @@ public class DataAbsensiHarianActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         dbHelper = new DataHelper(this);
+        dbHelper.getAttendanceFromFirestore();
         listAbsensi = new ArrayList<>();
         listAbsensiToday = new ArrayList<>();
 
