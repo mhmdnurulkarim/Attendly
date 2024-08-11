@@ -7,12 +7,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.oci.presensi.adapter.AdapterDataAbsensiHarian;
-import com.oci.presensi.databinding.DataAbsensiHarianBinding;
+import com.oci.presensi.databinding.ActivityDataAbsensiHarianBinding;
 import com.oci.presensi.helper.DataHelper;
 import com.oci.presensi.model.ModelAbsensi;
 import com.oci.presensi.util.PreferenceUtils;
@@ -20,9 +20,9 @@ import com.oci.presensi.util.PreferenceUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataAbsensiHarian extends AppCompatActivity {
+public class DataAbsensiHarianActivity extends AppCompatActivity {
 
-    DataAbsensiHarianBinding binding;
+    ActivityDataAbsensiHarianBinding binding;
     DataHelper dbHelper;
     List<ModelAbsensi> listAbsensi;
     List<ModelAbsensi> listAbsensiToday;
@@ -30,7 +30,8 @@ public class DataAbsensiHarian extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.data_absensi_harian);
+        binding = ActivityDataAbsensiHarianBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         dbHelper = new DataHelper(this);
         listAbsensi = new ArrayList<>();
@@ -39,14 +40,8 @@ public class DataAbsensiHarian extends AppCompatActivity {
         fetchAttendanceData();
 
         binding.txtTanggal.setText(getDateTime());
-    }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent a = new Intent(DataAbsensiHarian.this, HomeActivity.class);
-        startActivity(a);
-        finish();
+        setupBackPressedHandler();
     }
 
     private void fetchAttendanceData() {
@@ -59,7 +54,7 @@ public class DataAbsensiHarian extends AppCompatActivity {
 
             @Override
             public void onFetchFailed(Exception e) {
-                Toast.makeText(DataAbsensiHarian.this, "Gagal mengambil data absensi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(DataAbsensiHarianActivity.this, "Gagal mengambil data absensi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -88,10 +83,20 @@ public class DataAbsensiHarian extends AppCompatActivity {
 
         if (!listAbsensiToday.isEmpty()) {
             AdapterDataAbsensiHarian itemList = new AdapterDataAbsensiHarian(listAbsensiToday, dbHelper);
-            binding.rvDataAbsensiHarian.setLayoutManager(new LinearLayoutManager(DataAbsensiHarian.this));
+            binding.rvDataAbsensiHarian.setLayoutManager(new LinearLayoutManager(DataAbsensiHarianActivity.this));
             binding.rvDataAbsensiHarian.setAdapter(itemList);
         } else {
             Toast.makeText(this, "Anda belum memiliki data absensi harian", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void setupBackPressedHandler() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }

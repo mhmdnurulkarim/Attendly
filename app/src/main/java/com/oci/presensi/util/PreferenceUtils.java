@@ -64,16 +64,16 @@ public class PreferenceUtils extends AppCompatActivity {
         return prefs.getInt(Constants.KEY_ID_ROLE, 0);
     }
 
-    public static boolean saveNik(int nik, Context context) {
+    public static boolean saveNik(String nik, Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor prefsEditor = prefs.edit();
-        prefsEditor.putInt(Constants.KEY_NIK, nik);
+        prefsEditor.putString(Constants.KEY_NIK, nik);
         prefsEditor.apply();
         return true;
     }
 
-    public static int getNik(Context context) {
+    public static String getNik(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getInt(Constants.KEY_NIK, 0);
+        return prefs.getString(Constants.KEY_NIK, "");
     }
 }

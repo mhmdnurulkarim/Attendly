@@ -1,5 +1,6 @@
 package com.oci.presensi.helper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,12 +37,12 @@ public class DataHelper extends SQLiteOpenHelper {
                 "password text, " +
                 "id_role integer, " +
                 "nama text, " +
-                "nik integer, " +
+                "nik text, " +
                 "divisi text);";
         db.execSQL(CREATE_TABLE_AKUN);
 
         String CREATE_TABLE_ABSENSI = "create table absensi(" +
-                "id_absensi integer primary key autoincrement, " +
+                "id_absensi integer primary key, " +
                 "timestamp text, " +
                 "id_user integer, " +
                 "keterangan text);";
@@ -53,71 +54,70 @@ public class DataHelper extends SQLiteOpenHelper {
 
         // --------------- INSERT DATA TO TABLE -----------
 
-        String INSERT_INTO_AKUN = "INSERT INTO akun" +
+        String INSERT_ADAM = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(1, 'adam', '1234', 1, 'Adam', 123456789,  'Manager');";
-        db.execSQL(INSERT_INTO_AKUN);
+                "(1, 'adam', '1234', 1, 'Adam', '123456789',  'Manager');";
+        db.execSQL(INSERT_ADAM);
 
-        String INSERT_INTO_AKUN2 = "INSERT INTO akun" +
+        String INSERT_DEA = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(2, 'usman', '1234', 3, 'Usman', 1234567891,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN2);
+                "(2, 'dea', '1234', 2, 'Dea', '12345672891',  'Admin Koordinator');";
+        db.execSQL(INSERT_DEA);
 
-        String INSERT_INTO_AKUN3 = "INSERT INTO akun" +
+        String INSERT_ABDUL = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(3, 'abdul', '1234', 3, 'Abdul Rosid', 789445612,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN3);
+                "(3, 'abdul', '1234', 3, 'Abdul Rosid', '789445612',  'Pekerja Gudang');";
+        db.execSQL(INSERT_ABDUL);
 
-        String INSERT_INTO_AKUN4 = "INSERT INTO akun" +
+        String INSERT_BAKRI = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(4, 'bakri', '1234', 3, 'Bakri', 987456123,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN4);
+                "(4, 'bakri', '1234', 3, 'Bakri', '987456123',  'Pekerja Gudang');";
+        db.execSQL(INSERT_BAKRI);
 
-        String INSERT_INTO_AKUN5 = "INSERT INTO akun" +
+        String INSERT_INAN = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(5, 'inan', '1234', 3, 'Inan', 12345678941,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN5);
+                "(5, 'inan', '1234', 3, 'Inan', '12345678941',  'Pekerja Gudang');";
+        db.execSQL(INSERT_INAN);
 
-        String INSERT_INTO_AKUN6 = "INSERT INTO akun" +
+        String INSERT_MUHASAN = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(6, 'muhasan', '1234', 3, 'Muhasan', 7894245612,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN6);
+                "(6, 'muhasan', '1234', 3, 'Muhasan', '7894245612',  'Pekerja Gudang');";
+        db.execSQL(INSERT_MUHASAN);
 
-        String INSERT_INTO_AKUN7 = "INSERT INTO akun" +
+        String INSERT_TUMIN = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(7, 'tumin', '1234', 3, 'Tumin', 9872456123,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN7);
+                "(7, 'tumin', '1234', 3, 'Tumin', '9872456123',  'Pekerja Gudang');";
+        db.execSQL(INSERT_TUMIN);
 
-        String INSERT_INTO_AKUN8 = "INSERT INTO akun" +
+        String INSERT_SAMSUL = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(8, 'samsul', '1234', 3, 'Samsul', 7894455612,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN8);
+                "(8, 'samsul', '1234', 3, 'Samsul', '7894455612',  'Pekerja Gudang');";
+        db.execSQL(INSERT_SAMSUL);
 
-        String INSERT_INTO_AKUN9 = "INSERT INTO akun" +
+        String INSERT_ASEP = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(9, 'asep', '1234', 3, 'Asep', 98764561223,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN9);
+                "(9, 'asep', '1234', 3, 'Asep', '98764561223',  'Pekerja Gudang');";
+        db.execSQL(INSERT_ASEP);
 
-        String INSERT_INTO_AKUN10 = "INSERT INTO akun" +
+        String INSERT_USMAN = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(10, 'dea', '1234', 2, 'Dea', 12345672891,  'Admin Koordinator');";
-        db.execSQL(INSERT_INTO_AKUN10);
+                "(10, 'usman', '1234', 3, 'Usman', '1234567891',  'Pekerja Gudang');";
+        db.execSQL(INSERT_USMAN);
 
-        String INSERT_INTO_AKUN11 = "INSERT INTO akun" +
+        String INSERT_ULYAH = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(11, 'ulyah', '1234', 3, 'Ulyah', 7894456512,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN11);
+                "(11, 'ulyah', '1234', 3, 'Ulyah', '7894456512',  'Pekerja Gudang');";
+        db.execSQL(INSERT_ULYAH);
 
-        String INSERT_INTO_AKUN12 = "INSERT INTO akun" +
+        String INSERT_AINUN = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(12, 'ainun', '1234', 3, 'Ainun', 1987456123,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN12);
+                "(12, 'ainun', '1234', 3, 'Ainun', '1987456123',  'Pekerja Gudang');";
+        db.execSQL(INSERT_AINUN);
 
-        String INSERT_INTO_AKUN13 = "INSERT INTO akun" +
+        String INSERT_EKA = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(13, 'eka', '1234', 3, 'Eka', 7894425612,  'Pekerja Gudang');";
-        db.execSQL(INSERT_INTO_AKUN13);
-
+                "(13, 'eka', '1234', 3, 'Eka', '7894425612',  'Pekerja Gudang');";
+        db.execSQL(INSERT_EKA);
     }
 
     @Override
@@ -130,12 +130,10 @@ public class DataHelper extends SQLiteOpenHelper {
     // ---------------- AKUN --------------
 
     public List<ModelAkun> getAllAkun() {
-        List<ModelAkun> listModelAkun = new ArrayList<ModelAkun>();
-        // Select All Query
+        List<ModelAkun> listModelAkun = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM akun", null);
-        cursor.moveToFirst();
-        // Looping through all rows and adding to list
+        Cursor cursor = db.rawQuery("SELECT * FROM akun", null);
+
         if (cursor.moveToFirst()) {
             do {
                 ModelAkun akun = new ModelAkun(
@@ -144,41 +142,45 @@ public class DataHelper extends SQLiteOpenHelper {
                         cursor.getString(2),
                         cursor.getInt(3),
                         cursor.getString(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5),
+                        cursor.getString(6)
+                );
                 listModelAkun.add(akun);
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
+        db.close();
         return listModelAkun;
     }
 
     public ModelAkun getAkun(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM akun WHERE id_user = '" + id + "'", null);
-        String[] user = new String[cursor.getCount()];
-        cursor.moveToFirst();
-        for (int cc = 0; cc < cursor.getCount(); cc++) {
-            cursor.moveToPosition(cc);
-            user[cc] = cursor.getString(0).toString();
+        Cursor cursor = db.rawQuery("SELECT * FROM akun WHERE id_user = ?", new String[]{String.valueOf(id)});
+
+        ModelAkun akun = null;
+        if (cursor.moveToFirst()) {
+            akun = new ModelAkun(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getInt(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    cursor.getString(6)
+            );
         }
-        ModelAkun akun = new ModelAkun(
-                cursor.getInt(0),
-                cursor.getString(1),
-                cursor.getString(2),
-                cursor.getInt(3),
-                cursor.getString(4),
-                cursor.getInt(5),
-                cursor.getString(6));
+
+        cursor.close();
+        db.close();
         return akun;
     }
 
     public List<ModelAkun> getAllPegawai(int id_tipe_akun) {
-        List<ModelAkun> listModelAkun = new ArrayList<ModelAkun>();
-        // Select All Query
+        List<ModelAkun> listModelAkun = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM akun WHERE id_role = '" + id_tipe_akun + "'", null);
-        cursor.moveToFirst();
-        // Looping through all rows and adding to list
+        Cursor cursor = db.rawQuery("SELECT * FROM akun WHERE id_role = ?", new String[]{String.valueOf(id_tipe_akun)});
+
         if (cursor.moveToFirst()) {
             do {
                 ModelAkun akun = new ModelAkun(
@@ -187,43 +189,40 @@ public class DataHelper extends SQLiteOpenHelper {
                         cursor.getString(2),
                         cursor.getInt(3),
                         cursor.getString(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5),
+                        cursor.getString(6)
+                );
                 listModelAkun.add(akun);
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
+        db.close();
         return listModelAkun;
     }
 
     public String getNamaUser(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM akun WHERE id_user = '" + id + "'", null);
-        String[] user = new String[cursor.getCount()];
-        cursor.moveToFirst();
-        for (int cc = 0; cc < cursor.getCount(); cc++) {
-            cursor.moveToPosition(cc);
-            user[cc] = cursor.getString(0).toString();
+        String nama = null;
+        Cursor cursor = db.rawQuery("SELECT nama FROM akun WHERE id_user = ?", new String[]{String.valueOf(id)});
+
+        if (cursor.moveToFirst()) {
+            nama = cursor.getString(0);
         }
-        ModelAkun akun = new ModelAkun(
-                cursor.getInt(0),
-                cursor.getString(1),
-                cursor.getString(2),
-                cursor.getInt(3),
-                cursor.getString(4),
-                cursor.getInt(5),
-                cursor.getString(6));
-        return akun.getNama();
+
+        cursor.close();
+        db.close();
+
+        return nama;
     }
 
     // ---------------- ABSENSI --------------
 
     public List<ModelAbsensi> getAllAbsensi() {
-        List<ModelAbsensi> listModelAbsensi = new ArrayList<ModelAbsensi>();
-        // Select All Query
+        List<ModelAbsensi> listModelAbsensi = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM absensi", null);
-        cursor.moveToFirst();
-        // Looping through all rows and adding to list
+        Cursor cursor = db.rawQuery("SELECT id_absensi, timestamp, id_user, keterangan FROM absensi", null);
+
         if (cursor.moveToFirst()) {
             do {
                 ModelAbsensi absensi = new ModelAbsensi(
@@ -234,32 +233,38 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAbsensi.add(absensi);
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
+        db.close();
         return listModelAbsensi;
     }
 
     public void addNewAbsensi(int id, String timestamp, int idAkun, String keterangan) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("insert into absensi(id_absensi, timestamp, id_user, keterangan) VALUES ('" +
-                id + "','" +
-                timestamp + "','" +
-                idAkun + "','" +
-                keterangan + "')");
+        db.execSQL("INSERT INTO absensi(id_absensi, timestamp, id_user, keterangan) VALUES (?, ?, ?, ?)",
+                new Object[]{id, timestamp, idAkun, keterangan});
         db.close();
     }
 
     public int getLastIdAbsensi() {
-        List<ModelAbsensi> produkList = getAllAbsensi();
-        int lastID = produkList.size();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT MAX(id_absensi) FROM absensi", null);
+        int lastID = 0;
+
+        if (cursor.moveToFirst()) {
+            lastID = cursor.getInt(0);
+        }
+
+        cursor.close();
+        db.close();
         return lastID + 1;
     }
 
     public List<ModelAbsensi> getAllAbsensiByIdUser(int id) {
-        List<ModelAbsensi> listModelAbsensi = new ArrayList<ModelAbsensi>();
-        // Select All Query
+        List<ModelAbsensi> listModelAbsensi = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  * FROM absensi where id_user = '" + id + "'", null);
-        cursor.moveToFirst();
-        // Looping through all rows and adding to list
+        Cursor cursor = db.rawQuery("SELECT id_absensi, timestamp, id_user, keterangan FROM absensi WHERE id_user = ?", new String[]{String.valueOf(id)});
+
         if (cursor.moveToFirst()) {
             do {
                 ModelAbsensi absensi = new ModelAbsensi(
@@ -270,8 +275,13 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAbsensi.add(absensi);
             } while (cursor.moveToNext());
         }
+
+        cursor.close();
+        db.close();
         return listModelAbsensi;
     }
+
+    // ---------------- FIRESTORE --------------
 
     public void saveAttendance(int id, String timestamp, int userId, String keterangan) {
         addNewAbsensi(id, timestamp, userId, keterangan);
@@ -285,8 +295,11 @@ public class DataHelper extends SQLiteOpenHelper {
         attendance.put("timestamp", timestamp);
         attendance.put("id_user", userId);
         attendance.put("keterangan", keterangan);
-        db.collection("absensi").document(String.valueOf(userId))
-                .collection("absensiUser").document(String.valueOf(id))
+
+        db.collection("absensi")
+                .document(String.valueOf(userId))
+                .collection("absensiUser")
+                .document(String.valueOf(id))
                 .set(attendance)
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully written!"))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
@@ -294,40 +307,36 @@ public class DataHelper extends SQLiteOpenHelper {
 
     public void getAttendanceFromFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collectionGroup("absensiUser") // Mengambil semua dokumen dari subkoleksi "absensiUser"
+        db.collectionGroup("absensiUser")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+                        sqLiteDatabase.beginTransaction();
 
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            ModelAbsensi attendance = document.toObject(ModelAbsensi.class);
+                        try {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                ModelAbsensi attendance = document.toObject(ModelAbsensi.class);
 
-                            // Mengecek apakah data dengan id_absensi sudah ada
-                            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM absensi WHERE id_absensi = ?", new String[]{String.valueOf(attendance.getId_absensi())});
+                                ContentValues contentValues = new ContentValues();
+                                contentValues.put("id_absensi", attendance.getId_absensi());
+                                contentValues.put("timestamp", attendance.getTimestamp());
+                                contentValues.put("id_user", attendance.getId_user());
+                                contentValues.put("keterangan", attendance.getKeterangan());
 
-                            if (cursor != null && cursor.moveToFirst()) {
-                                // Jika data sudah ada, lakukan update
-                                sqLiteDatabase.execSQL("UPDATE absensi SET " +
-                                        "timestamp = '" + attendance.getTimestamp() + "', " +
-                                        "id_user = '" + attendance.getId_user() + "', " +
-                                        "keterangan = '" + attendance.getKeterangan() + "' " +
-                                        "WHERE id_absensi = '" + attendance.getId_absensi() + "'");
-                            } else {
-                                // Jika data belum ada, lakukan insert
-                                sqLiteDatabase.execSQL("INSERT INTO absensi (id_absensi, timestamp, id_user, keterangan) VALUES ('" +
-                                        attendance.getId_absensi() + "','" +
-                                        attendance.getTimestamp() + "','" +
-                                        attendance.getId_user() + "','" +
-                                        attendance.getKeterangan() + "')");
+                                int rowsUpdated = sqLiteDatabase.update("absensi", contentValues, "id_absensi = ?", new String[]{String.valueOf(attendance.getId_absensi())});
+
+                                if (rowsUpdated == 0) {
+                                    sqLiteDatabase.insert("absensi", null, contentValues);
+                                }
                             }
-
-                            if (cursor != null) {
-                                cursor.close();
-                            }
+                            sqLiteDatabase.setTransactionSuccessful();
+                        } catch (Exception e) {
+                            Log.w("SQLite", "Error processing attendance data.", e);
+                        } finally {
+                            sqLiteDatabase.endTransaction();
+                            sqLiteDatabase.close();
                         }
-
-                        sqLiteDatabase.close();
                     } else {
                         Log.w("Firestore", "Error getting attendance documents.", task.getException());
                     }
@@ -336,23 +345,34 @@ public class DataHelper extends SQLiteOpenHelper {
 
 
     public void fetchAttendanceData(int userId, FetchAttendanceCallback callback) {
-        List<ModelAbsensi> localAbsensi = getAllAbsensi();
+        List<ModelAbsensi> localAbsensi = getAllAbsensiByIdUser(userId);
         List<ModelAbsensi> combinedAbsensi = new ArrayList<>(localAbsensi);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("absensi")
-                .whereEqualTo("id_user", userId)
+        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+        dbFirestore.collection("absensi")
+                .document(String.valueOf(userId))
+                .collection("absensiUser")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             ModelAbsensi absensi = new ModelAbsensi(
-                                    document.getLong("id").intValue(),
+                                    document.getLong("id_absensi").intValue(),
                                     document.getString("timestamp"),
                                     document.getLong("id_user").intValue(),
                                     document.getString("keterangan")
                             );
-                            if (!combinedAbsensi.contains(absensi)) {
+
+                            boolean existsInLocal = false;
+                            for (ModelAbsensi local : localAbsensi) {
+                                if (local.getId_absensi() == absensi.getId_absensi()) {
+                                    existsInLocal = true;
+                                    break;
+                                }
+                            }
+
+                            if (!existsInLocal) {
+                                addNewAbsensi(absensi.getId_absensi(), absensi.getTimestamp(), absensi.getId_user(), absensi.getKeterangan());
                                 combinedAbsensi.add(absensi);
                             }
                         }
@@ -365,6 +385,7 @@ public class DataHelper extends SQLiteOpenHelper {
 
     public interface FetchAttendanceCallback {
         void onFetchComplete(List<ModelAbsensi> attendanceList);
+
         void onFetchFailed(Exception e);
     }
 }

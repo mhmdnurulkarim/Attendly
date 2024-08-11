@@ -15,16 +15,16 @@
         android:theme="@style/Theme.Presensi"
         tools:targetApi="31">
         <activity
-            android:name=".DataRekapAbsensi"
+            android:name=".DataRekapAbsensiActivity"
             android:exported="false" />
         <activity
-            android:name=".DataRekapAbsensiDetail"
+            android:name=".DataRekapAbsensiDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".DataAbsensiHarian"
+            android:name=".DataAbsensiHarianActivity"
             android:exported="false" />
         <activity
-            android:name=".DataKaryawan"
+            android:name=".DataKaryawanActivity"
             android:exported="false" />
         <activity
             android:name=".AbsensiActivity"

@@ -3,10 +3,10 @@ package com.oci.presensi;
 import static com.oci.presensi.util.Utils.getDate;
 import static com.oci.presensi.util.Utils.getDateTime;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,11 +20,9 @@ import java.util.List;
 
 public class AbsensiActivity extends AppCompatActivity {
 
-    ActivityAbsensiBinding binding;
-    DataHelper dbHelper;
-    List<ModelAbsensi> listAbsensi;
-    List<ModelAbsensi> listAbsensiToday;
-
+    private ActivityAbsensiBinding binding;
+    private DataHelper dbHelper;
+    private List<ModelAbsensi> listAbsensiToday;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,122 +31,107 @@ public class AbsensiActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         dbHelper = new DataHelper(this);
-        listAbsensi = dbHelper.getAllAbsensi();
+        initializeAbsensiList();
+
+        setupKaryawanInfo();
+        setupButtonListeners();
+
+        setupBackPressedHandler();
+    }
+
+    private void initializeAbsensiList() {
+        List<ModelAbsensi> listAbsensi = dbHelper.getAllAbsensi();
         listAbsensiToday = new ArrayList<>();
 
+        String todayDate = getDate();
+        int userId = PreferenceUtils.getIdAkun(getApplicationContext());
+
         for (ModelAbsensi absensi : listAbsensi) {
-            if (absensi.getTimestamp().substring(0, 10).equalsIgnoreCase(getDate()) &&
-                    absensi.getId_user() == PreferenceUtils.getIdAkun(getApplicationContext())) {
+            if (absensi.getTimestamp().startsWith(todayDate) && absensi.getId_user() == userId) {
                 listAbsensiToday.add(absensi);
             }
         }
+    }
 
+    private void setupKaryawanInfo() {
         binding.txtTanggal.setText(getDateTime());
         binding.txtIDKaryawan.setText("ID Karyawan : " + PreferenceUtils.getIdAkun(getApplicationContext()));
         binding.txtNamaKaryawan.setText("Nama Karyawan : " + PreferenceUtils.getNama(getApplicationContext()));
         binding.txtNikKaryawan.setText("NIK Karyawan : " + PreferenceUtils.getNik(getApplicationContext()));
         binding.txtDivisiKaryawan.setText("Divisi Karyawan : " + PreferenceUtils.getDivisi(getApplicationContext()));
         binding.txtRoleKaryawan.setText("Role Karyawan : " + PreferenceUtils.getIdRole(getApplicationContext()));
-
-        binding.btnDatang.setOnClickListener(v -> {
-            boolean sudahabsendatang = false;
-            for (ModelAbsensi absensi : listAbsensiToday) {
-                if (absensi.getKeterangan().equalsIgnoreCase("DATANG")) {
-                    Toast.makeText(this, "Anda sudah melakukan absensi datang!", Toast.LENGTH_SHORT).show();
-                    sudahabsendatang = true;
-                    break;
-                }
-            }
-            if (!sudahabsendatang) {
-                showAbsensiDatangDialog();
-            }
-        });
-
-        binding.btnPulang.setOnClickListener(v -> {
-            boolean sudahabsenpulang = false;
-            for (ModelAbsensi absensi : listAbsensiToday) {
-                if (absensi.getKeterangan().equalsIgnoreCase("PULANG")) {
-                    Toast.makeText(this, "Anda sudah melakukan absensi pulang!", Toast.LENGTH_SHORT).show();
-                    sudahabsenpulang = true;
-                    break;
-                }
-            }
-            if (!sudahabsenpulang) {
-                showAbsensiPulangDialog();
-            }
-        });
     }
 
-
-    private void showAbsensiDatangDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("ABSEN DATANG");
-        builder.setMessage("Lakukan absensi datang?");
-        builder.setPositiveButton("YA", (dialog, which) -> {
-            int id = dbHelper.getLastIdAbsensi() + 1; // Assuming id should be incremented
-            String now = getDateTime();
-            int idAkun = PreferenceUtils.getIdAkun(getApplicationContext());
-            dbHelper.saveAttendance(id, now, idAkun, "DATANG");
-            setdialogdatang();
-            dialog.dismiss();
-        });
-        builder.setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+    private void setupButtonListeners() {
+        binding.btnDatang.setOnClickListener(v -> handleAbsensi("DATANG"));
+        binding.btnPulang.setOnClickListener(v -> handleAbsensi("PULANG"));
     }
 
-    private void setdialogdatang() {
+    private void handleAbsensi(String keterangan) {
+        if (isAlreadyAbsensi(keterangan)) {
+            String message = "Anda sudah melakukan absensi " + keterangan.toLowerCase() + "!";
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        } else {
+            showAbsensiDialog(keterangan);
+        }
+    }
+
+    private boolean isAlreadyAbsensi(String keterangan) {
+        for (ModelAbsensi absensi : listAbsensiToday) {
+            if (absensi.getKeterangan().equalsIgnoreCase(keterangan)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void showAbsensiDialog(String keterangan) {
+        String title = "ABSEN " + keterangan;
+        String message = "Lakukan absensi " + keterangan.toLowerCase() + "?";
+
         new AlertDialog.Builder(this)
-                .setMessage("BERHASIL MELAKUKAN ABSENSI DATANG")
-                .setCancelable(true)
-                .setPositiveButton("OK", (dialog, id) -> {
-                    Intent a = new Intent(AbsensiActivity.this, HomeActivity.class);
-                    startActivity(a);
-                    finish();
-                }).create().show();
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("YA", (dialog, which) -> {
+                    saveAbsensi(keterangan);
+                    showSuccessDialog(keterangan);
+                })
+                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
+                .create().show();
     }
 
-    private void showAbsensiPulangDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("ABSEN PULANG");
-        builder.setMessage("Lakukan absensi pulang?");
-        builder.setPositiveButton("YA", (dialog, which) -> {
-            int id = dbHelper.getLastIdAbsensi(); // Assuming id should be incremented
-            String now = getDateTime();
-            int idAkun = PreferenceUtils.getIdAkun(getApplicationContext());
-            dbHelper.saveAttendance(id, now, idAkun, "PULANG");
-            setdialogpulang();
-            dialog.dismiss();
-        });
-        builder.setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+    private void saveAbsensi(String keterangan) {
+        int id = dbHelper.getLastIdAbsensi();
+        String now = getDateTime();
+        int idAkun = PreferenceUtils.getIdAkun(getApplicationContext());
+        dbHelper.saveAttendance(id, now, idAkun, keterangan);
     }
 
-    private void setdialogpulang() {
+    private void showSuccessDialog(String keterangan) {
+        String message = "BERHASIL MELAKUKAN ABSENSI " + keterangan;
         new AlertDialog.Builder(this)
-                .setMessage("BERHASIL MELAKUKAN ABSENSI PULANG")
+                .setMessage(message)
                 .setCancelable(true)
-                .setPositiveButton("OK", (dialog, id) -> {
-                    Intent a = new Intent(AbsensiActivity.this, HomeActivity.class);
-                    startActivity(a);
-                    finish();
-                }).create().show();
+                .setPositiveButton("OK", (dialog, id) -> finish())
+                .create().show();
+    }
+
+    private void setupBackPressedHandler() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                showBatalAbsensiDialog();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void showBatalAbsensiDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("BATAL ABSENSI");
-        builder.setMessage("Apakah anda yakin batal melakukan absensi?");
-        builder.setPositiveButton("YA", (dialog, which) -> {
-            Intent a = new Intent(AbsensiActivity.this, HomeActivity.class);
-            startActivity(a);
-            finish();
-        });
-        builder.setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
-    }
-
-    @Override
-    public void onBackPressed() {
-        showBatalAbsensiDialog();
+        new AlertDialog.Builder(this)
+                .setTitle("BATAL ABSENSI")
+                .setMessage("Apakah anda yakin batal melakukan absensi?")
+                .setPositiveButton("YA", (dialog, which) -> finish())
+                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
+                .create().show();
     }
 }

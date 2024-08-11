@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">ABSENSI PERGUDANGAN LIO BARU ASRI</string>
+    <string name="username">username</string>
+    <string name="password">password</string>
+    <string name="login">login</string>
+    <string name="absensi">ABSENSI</string>
+    <string name="data_karyawan">DATA KARYAWAN</string>
+    <string name="data_absensi_harian">DATA ABSENSI HARIAN</string>
+    <string name="logout">LOG OUT</string>
+    <string name="data_rekap_absensi">DATA REKAP ABSENSI</string>
+    <string name="datang">DATANG</string>
+    <string name="pulang">PULANG</string>
 </resources>

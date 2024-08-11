@@ -1,28 +1,22 @@
 package com.oci.presensi;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.widget.Button;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.oci.presensi.databinding.ActivityHomeBinding;
 import com.oci.presensi.helper.DataHelper;
-import com.oci.presensi.helper.FirestoreCallback;
-import com.oci.presensi.model.ModelAbsensi;
 import com.oci.presensi.util.PreferenceUtils;
-
-import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
-    ActivityHomeBinding binding;
+    private ActivityHomeBinding binding;
     DataHelper dbHelper;
+    private int userRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,112 +27,88 @@ public class HomeActivity extends AppCompatActivity {
         dbHelper = new DataHelper(this);
         dbHelper.getAttendanceFromFirestore();
 
+        userRole = PreferenceUtils.getIdRole(getApplicationContext());
+
         setupUI();
-        setupListeners();
+        setupBackPressedHandler();
     }
 
     private void setupUI() {
-        if (PreferenceUtils.getIdRole(getApplicationContext()) == 3) {
-            binding.btnDataKaryawan.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.rect_gray_radius_smaller));
-            binding.btnDataRekapAbsensi.setBackground(ContextCompat.getDrawable(getApplicationContext(), R.drawable.rect_gray_radius_smaller));
+        if (userRole == 3) {
+            disableButton(binding.btnDataKaryawan);
+            disableButton(binding.btnDataRekapAbsensi);
         }
 
-        binding.txtIDKaryawan.setText("ID Karyawan : " + PreferenceUtils.getIdRole(getApplicationContext()));
+        binding.txtIDKaryawan.setText("ID Karyawan : " + userRole);
         binding.txtNamaKaryawan.setText("Nama Karyawan : " + PreferenceUtils.getNama(getApplicationContext()));
+
+        binding.btnAbsensi.setOnClickListener(v -> goToPage(AbsensiActivity.class));
+        binding.btnDataKaryawan.setOnClickListener(v -> {
+            if (userRole != 3) {
+                goToPage(DataKaryawanActivity.class);
+            }
+        });
+        binding.btnDataAbsensiHarian.setOnClickListener(v -> goToPage(DataAbsensiHarianActivity.class));
+        binding.btnDataRekapAbsensi.setOnClickListener(v -> {
+            if (userRole != 3) {
+                goToPage(DataRekapAbsensiActivity.class);
+            }
+        });
+        binding.btnLogOut.setOnClickListener(v -> showLogoutDialog());
     }
 
-    private void setupListeners() {
-        binding.btnAbsensi.setOnClickListener(v -> {
-            Intent a = new Intent(HomeActivity.this, AbsensiActivity.class);
-            startActivity(a);
-            finish();
-        });
-
-        binding.btnDataKaryawan.setOnClickListener(v -> {
-            if (PreferenceUtils.getIdRole(getApplicationContext()) != 3) {
-                Intent a = new Intent(HomeActivity.this, DataKaryawan.class);
-                startActivity(a);
-                finish();
-            }
-        });
-
-        binding.btnDataAbsensiHarian.setOnClickListener(v -> {
-            Intent a = new Intent(HomeActivity.this, DataAbsensiHarian.class);
-            startActivity(a);
-            finish();
-        });
-
-        binding.btnDataRekapAbsensi.setOnClickListener(v -> {
-            if (PreferenceUtils.getIdRole(getApplicationContext()) != 3) {
-                Intent a = new Intent(HomeActivity.this, DataRekapAbsensi.class);
-                startActivity(a);
-                finish();
-            }
-        });
-
-        binding.btnLogOut.setOnClickListener(v -> {
-            showLogoutDialog();
-        });
+    private void disableButton(Button button) {
+        button.setBackgroundColor(getResources().getColor(R.color.greyText));
+        button.setEnabled(false);
     }
 
     private void showLogoutDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("LOG OUT");
-        builder.setMessage("Apakah anda yakin ingin Log Out ?");
+        new AlertDialog.Builder(this)
+                .setTitle("LOG OUT")
+                .setMessage("Apakah anda yakin ingin Log Out?")
+                .setPositiveButton("YA", (dialog, which) -> {
+                    clearPreferences();
+                    goToLoginPage();
+                })
+                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
+                .create().show();
+    }
 
-        builder.setPositiveButton("YA", new DialogInterface.OnClickListener() {
+    private void clearPreferences() {
+        PreferenceUtils.saveIdAkun(0, getApplicationContext());
+        PreferenceUtils.saveIdRole(0, getApplicationContext());
+        PreferenceUtils.saveNama("", getApplicationContext());
+        PreferenceUtils.saveDivisi("", getApplicationContext());
+        PreferenceUtils.saveNik("", getApplicationContext());
+    }
+
+    private void setupBackPressedHandler() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                PreferenceUtils.saveIdAkun(0, getApplicationContext());
-                PreferenceUtils.saveIdRole(0, getApplicationContext());
-                PreferenceUtils.saveNama("", getApplicationContext());
-                PreferenceUtils.saveDivisi("", getApplicationContext());
-                PreferenceUtils.saveNik(0, getApplicationContext());
-                Intent a = new Intent(HomeActivity.this, LoginActivity.class);
-                startActivity(a);
-                finish();
+            public void handleOnBackPressed() {
+                showKeluarDialog();
             }
-        });
-
-        builder.setNegativeButton("TIDAK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void showKeluarDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("KELUAR");
-        builder.setMessage("Apakah anda yakin ingin keluar ?");
-
-        builder.setPositiveButton("YA", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-                finishAffinity();
-            }
-        });
-
-        builder.setNegativeButton("TIDAK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        new AlertDialog.Builder(this)
+                .setTitle("KELUAR")
+                .setMessage("Apakah anda yakin ingin keluar?")
+                .setPositiveButton("YA", (dialog, which) -> finishAffinity())
+                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
+                .create().show();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        showKeluarDialog();
+    private void goToPage(Class<?> destinationActivity) {
+        Intent intent = new Intent(HomeActivity.this, destinationActivity);
+        startActivity(intent);
     }
 
+    private void goToLoginPage() {
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finishAffinity();
+    }
 }

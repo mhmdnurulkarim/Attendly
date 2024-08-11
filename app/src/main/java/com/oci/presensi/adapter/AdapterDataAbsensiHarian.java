@@ -1,6 +1,5 @@
 package com.oci.presensi.adapter;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +14,10 @@ import com.oci.presensi.model.ModelAbsensi;
 
 import java.util.List;
 
-public class AdapterDataAbsensiHarian extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class AdapterDataAbsensiHarian extends RecyclerView.Adapter<AdapterDataAbsensiHarian.ViewHolder> {
 
-    List<ModelAbsensi> itemList;
-    DataHelper dataHelper;
+    private final List<ModelAbsensi> itemList;
+    private final DataHelper dataHelper;
 
     public AdapterDataAbsensiHarian(List<ModelAbsensi> itemList, DataHelper dataHelper) {
         this.itemList = itemList;
@@ -27,45 +26,42 @@ public class AdapterDataAbsensiHarian extends RecyclerView.Adapter<RecyclerView.
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.z_list_absensi_harian, parent, false);
-        Penampung penampung = new Penampung(view);
-        return penampung;
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_absensi_harian, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((Penampung) holder).nama.setText(dataHelper.getNamaUser(itemList.get(position).getId_user()));
-        ((Penampung) holder).ket.setText(itemList.get(position).getKeterangan());
-        if (itemList.get(position).getKeterangan().equalsIgnoreCase("DATANG")) {
-            ((Penampung) holder).ket.setTextColor(Color.parseColor("#047E38"));
-            ((Penampung) holder).tgl.setTextColor(Color.parseColor("#047E38"));
-        } else {
-            ((Penampung) holder).ket.setTextColor(Color.parseColor("#EE4446"));
-            ((Penampung) holder).tgl.setTextColor(Color.parseColor("#EE4446"));
-        }
-        ((Penampung) holder).tgl.setText(itemList.get(position).getTimestamp());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        ModelAbsensi absensi = itemList.get(position);
 
+        holder.nama.setText(dataHelper.getNamaUser(absensi.getId_user()));
+        holder.ket.setText(absensi.getKeterangan());
+        holder.tgl.setText(absensi.getTimestamp());
+
+        int color = absensi.getKeterangan().equalsIgnoreCase("DATANG") ?
+                holder.itemView.getContext().getColor(R.color.greenText) :
+                holder.itemView.getContext().getColor(R.color.redText);
+
+        holder.ket.setTextColor(color);
+        holder.tgl.setTextColor(color);
     }
 
     @Override
     public int getItemCount() {
-        return itemList == null ? 0 : itemList.size();
+        return itemList != null ? itemList.size() : 0;
     }
 
-    static class Penampung extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public TextView nama, ket, tgl;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        private final TextView nama;
+        private final TextView ket;
+        private final TextView tgl;
 
-        public Penampung(View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             nama = itemView.findViewById(R.id.nama);
             ket = itemView.findViewById(R.id.ket);
             tgl = itemView.findViewById(R.id.tgl);
-        }
-
-        @Override
-        public void onClick(View v) {
-
         }
     }
 }

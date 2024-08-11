@@ -5,9 +5,6 @@ public class ModelAbsensi {
     int id_absensi, id_user;
     String timestamp, keterangan;
 
-    public ModelAbsensi() {
-    }
-
     public ModelAbsensi(int id_absensi, String timestamp, int id_user, String keterangan) {
         this.id_absensi = id_absensi;
         this.id_user = id_user;

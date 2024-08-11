@@ -2,10 +2,10 @@ package com.oci.presensi.model;
 
 public class ModelAkun {
 
-    int id_user, id_role, nik;
-    String username, password, nama, divisi;
+    int id_user, id_role;
+    String username, password, nama, nik, divisi;
 
-    public ModelAkun(int id_user, String username, String password, int id_role, String nama, int nik, String divisi) {
+    public ModelAkun(int id_user, String username, String password, int id_role, String nama, String nik, String divisi) {
         this.id_user = id_user;
         this.username = username;
         this.password = password;
@@ -55,11 +55,11 @@ public class ModelAkun {
         this.nama = nama;
     }
 
-    public int getNik() {
+    public String getNik() {
         return nik;
     }
 
-    public void setNik(int nik) {
+    public void setNik(String nik) {
         this.nik = nik;
     }
 
