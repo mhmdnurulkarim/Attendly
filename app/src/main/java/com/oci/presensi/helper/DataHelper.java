@@ -126,7 +126,6 @@ public class DataHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-
     // ---------------- AKUN --------------
 
     public List<ModelAkun> getAllAkun() {

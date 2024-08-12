@@ -66,7 +66,6 @@ public class DataAbsensiHarianActivity extends AppCompatActivity {
 
         listAbsensiToday.clear();
         if (PreferenceUtils.getIdRole(getApplicationContext()) == 2) {
-            // semua karyawan
             for (ModelAbsensi absensi : listAbsensi) {
                 if (absensi.getTimestamp().substring(0, 10).equalsIgnoreCase(getDate())) {
                     listAbsensiToday.add(absensi);
