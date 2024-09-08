@@ -113,10 +113,15 @@ public class DataHelper extends SQLiteOpenHelper {
                 "(12, 'harti', '1234', 3, 'Harti', '1987456123', 'Pekerja Gudang');";
         db.execSQL(INSERT_HARTI);
 
-        String INSERT_ADINDA = "INSERT INTO akun" +
+        String INSERT_ANGGI = "INSERT INTO akun" +
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(13, 'adinda', '1234', 3, 'Adinda', '1987456123', 'Pekerja Gudang');";
-        db.execSQL(INSERT_ADINDA);
+                "(13, 'anggi', '1234', 3, 'Anggi', '1987456123', 'Pekerja Gudang');";
+        db.execSQL(INSERT_ANGGI);
+
+        String INSERT_GUNAWAN = "INSERT INTO akun" +
+                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
+                "(14, 'gunawan', '1234', 3, 'Gunawan', '1987456123', 'Pekerja Gudang');";
+        db.execSQL(INSERT_GUNAWAN);
     }
 
     @Override

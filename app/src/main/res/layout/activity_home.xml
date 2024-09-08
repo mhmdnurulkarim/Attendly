@@ -126,7 +126,7 @@
             android:layout_height="75dp"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/greenText"
+            android:backgroundTint="@color/redText"
             android:fontFamily="@font/inter_bold"
             android:text="@string/logout"
             android:textAllCaps="true"
