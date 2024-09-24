@@ -2,6 +2,9 @@ package com.oci.presensi;
 
 import static com.oci.presensi.util.Utils.getDate;
 import static com.oci.presensi.util.Utils.getDateTime;
+import static com.oci.presensi.util.Utils.getTime;
+
+import static java.security.AccessController.getContext;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -9,6 +12,7 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.oci.presensi.databinding.ActivityAbsensiBinding;
 import com.oci.presensi.helper.DataHelper;
@@ -64,8 +68,26 @@ public class AbsensiActivity extends AppCompatActivity {
     }
 
     private void setupButtonListeners() {
-        binding.btnDatang.setOnClickListener(v -> handleAbsensi("DATANG"));
-        binding.btnPulang.setOnClickListener(v -> handleAbsensi("PULANG"));
+        String now = getTime();
+
+        if (now.compareTo("06:00") >= 0 && now.compareTo("08:00") <= 0) {
+            binding.btnDatang.setEnabled(true);
+            binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greenText));
+            binding.btnPulang.setEnabled(false);
+            binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+            binding.btnDatang.setOnClickListener(v -> handleAbsensi("DATANG"));
+        } else if (now.compareTo("16:00") >= 0 && now.compareTo("20:00") <= 0) {
+            binding.btnDatang.setEnabled(false);
+            binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+            binding.btnPulang.setEnabled(true);
+            binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.redText));
+            binding.btnPulang.setOnClickListener(v -> handleAbsensi("PULANG"));
+        } else {
+            binding.btnDatang.setEnabled(false);
+            binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+            binding.btnPulang.setEnabled(false);
+            binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+        }
     }
 
     private void handleAbsensi(String keterangan) {

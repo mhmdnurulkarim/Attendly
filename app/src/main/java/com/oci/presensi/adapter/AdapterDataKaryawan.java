@@ -1,5 +1,8 @@
 package com.oci.presensi.adapter;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.oci.presensi.DataRekapAbsensiDetailActivity;
+import com.oci.presensi.DetailKaryawanActivity;
 import com.oci.presensi.R;
 import com.oci.presensi.model.ModelAkun;
 
@@ -16,8 +21,10 @@ import java.util.List;
 public class AdapterDataKaryawan extends RecyclerView.Adapter<AdapterDataKaryawan.ViewHolder> {
 
     private final List<ModelAkun> itemList;
+    private final Context context;
 
-    public AdapterDataKaryawan(List<ModelAkun> itemList) {
+    public AdapterDataKaryawan(Context context, List<ModelAkun> itemList) {
+        this.context = context;
         this.itemList = itemList;
     }
 
@@ -32,6 +39,15 @@ public class AdapterDataKaryawan extends RecyclerView.Adapter<AdapterDataKaryawa
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ModelAkun model = itemList.get(position);
         holder.bindData(model);
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailKaryawanActivity.class);
+            intent.putExtra("idUser", model.getIdUser());
+            context.startActivity(intent);
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
+            }
+        });
     }
 
     @Override

@@ -47,9 +47,9 @@ public class DataHelper extends SQLiteOpenHelper {
                 "keterangan text);";
         db.execSQL(CREATE_TABLE_ABSENSI);
 
-        // 1 manager
-        // 2 admin
-        // 3 pegawai
+        // 1 Manager
+        // 2 Admin
+        // 3 Pegawai
 
         // --------------- INSERT DATA TO TABLE -----------
 
@@ -72,56 +72,6 @@ public class DataHelper extends SQLiteOpenHelper {
                 "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
                 "(4, 'bakri', '1234', 3, 'Bakri', '987456123', 'Pekerja Gudang');";
         db.execSQL(INSERT_BAKRI);
-
-        String INSERT_INAN = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(5, 'inan', '1234', 3, 'Inan', '12345678941', 'Pekerja Gudang');";
-        db.execSQL(INSERT_INAN);
-
-        String INSERT_MUHASAN = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(6, 'muhasan', '1234', 3, 'Muhasan', '7894245612', 'Pekerja Gudang');";
-        db.execSQL(INSERT_MUHASAN);
-
-        String INSERT_TUMIN = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(7, 'tumin', '1234', 3, 'Tumin', '9872456123', 'Pekerja Gudang');";
-        db.execSQL(INSERT_TUMIN);
-
-        String INSERT_SAMSUL = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(8, 'samsul', '1234', 3, 'Samsul', '7894455612', 'Pekerja Gudang');";
-        db.execSQL(INSERT_SAMSUL);
-
-        String INSERT_ASEP = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(9, 'asep', '1234', 3, 'Asep', '98764561223', 'Pekerja Gudang');";
-        db.execSQL(INSERT_ASEP);
-
-        String INSERT_USMAN = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(10, 'usman', '1234', 3, 'Usman', '1234567891', 'Pekerja Gudang');";
-        db.execSQL(INSERT_USMAN);
-
-        String INSERT_ULYAH = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(11, 'ulyah', '1234', 3, 'Ulyah', '7894456512', 'Pekerja Gudang');";
-        db.execSQL(INSERT_ULYAH);
-
-        String INSERT_HARTI = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(12, 'harti', '1234', 3, 'Harti', '1987456123', 'Pekerja Gudang');";
-        db.execSQL(INSERT_HARTI);
-
-        String INSERT_ANGGI = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(13, 'anggi', '1234', 3, 'Anggi', '1987456123', 'Pekerja Gudang');";
-        db.execSQL(INSERT_ANGGI);
-
-        String INSERT_GUNAWAN = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(14, 'gunawan', '1234', 3, 'Gunawan', '1987456123', 'Pekerja Gudang');";
-        db.execSQL(INSERT_GUNAWAN);
     }
 
     @Override
@@ -132,6 +82,23 @@ public class DataHelper extends SQLiteOpenHelper {
     }
 
     // ---------------- AKUN --------------
+
+    public void addNewAkun(ModelAkun akun) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("INSERT INTO akun (id_user, username, password, id_role, nama, nik, divisi) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                new Object[]{akun.getIdUser(), akun.getUsername(), akun.getPassword(), akun.getId_role(), akun.getNama(), akun.getNik(), akun.getDivisi()});
+    }
+
+    public void updateAkun(ModelAkun akun) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE akun SET username = ?, password = ?, id_role = ?, nama = ?, nik = ?, divisi = ? WHERE id_user = ?",
+                new Object[]{akun.getUsername(), akun.getPassword(), akun.getId_role(), akun.getNama(), akun.getNik(), akun.getDivisi(), akun.getIdUser()});
+    }
+
+    public void deleteAkun(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM akun WHERE id_user = ?", new String[]{String.valueOf(id)});
+    }
 
     public List<ModelAkun> getAllAkun() {
         List<ModelAkun> listModelAkun = new ArrayList<>();

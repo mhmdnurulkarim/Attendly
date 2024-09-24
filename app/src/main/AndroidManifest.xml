@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Presensi"
         tools:targetApi="31">
         <activity
+            android:name=".DetailKaryawanActivity"
+            android:exported="false" />
+        <activity
             android:name=".DataRekapAbsensiActivity"
             android:exported="false" />
         <activity

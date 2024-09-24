@@ -44,6 +44,7 @@
                 android:textSize="18sp" />
 
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -56,4 +57,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/card"
         tools:listitem="@layout/item_karyawan" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:clickable="true"
+        app:backgroundTint="@color/greenBackground"
+        app:rippleColor="@color/greenText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_add" />
 </androidx.constraintlayout.widget.ConstraintLayout>
