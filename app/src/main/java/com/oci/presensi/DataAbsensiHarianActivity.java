@@ -3,7 +3,6 @@ package com.oci.presensi;
 import static com.oci.presensi.util.Utils.getDate;
 import static com.oci.presensi.util.Utils.getDateTime;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -22,10 +21,10 @@ import java.util.List;
 
 public class DataAbsensiHarianActivity extends AppCompatActivity {
 
-    ActivityDataAbsensiHarianBinding binding;
-    DataHelper dbHelper;
-    List<ModelAbsensi> listAbsensi;
-    List<ModelAbsensi> listAbsensiToday;
+    private ActivityDataAbsensiHarianBinding binding;
+    private DataHelper dbHelper;
+    private List<ModelAbsensi> listAbsensi;
+    private List<ModelAbsensi> listAbsensiToday;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +32,22 @@ public class DataAbsensiHarianActivity extends AppCompatActivity {
         binding = ActivityDataAbsensiHarianBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         dbHelper = new DataHelper(this);
         dbHelper.getAttendanceFromFirestore();
         listAbsensi = new ArrayList<>();
         listAbsensiToday = new ArrayList<>();
 
+        setupUI();
         fetchAttendanceData();
-
-        binding.txtTanggal.setText(getDateTime());
-
         setupBackPressedHandler();
+    }
+
+    private void setupUI() {
+        binding.txtTanggal.setText(getDateTime());
     }
 
     private void fetchAttendanceData() {
@@ -55,7 +60,7 @@ public class DataAbsensiHarianActivity extends AppCompatActivity {
 
             @Override
             public void onFetchFailed(Exception e) {
-                Toast.makeText(DataAbsensiHarianActivity.this, "Gagal mengambil data absensi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showFetchFailedMessage(e.getMessage());
             }
         });
     }
@@ -65,38 +70,51 @@ public class DataAbsensiHarianActivity extends AppCompatActivity {
         listAbsensi.addAll(attendanceList);
 
         listAbsensiToday.clear();
-        if (PreferenceUtils.getIdRole(getApplicationContext()) == 2) {
-            for (ModelAbsensi absensi : listAbsensi) {
-                if (absensi.getTimestamp().substring(0, 10).equalsIgnoreCase(getDate())) {
-                    listAbsensiToday.add(absensi);
-                }
-            }
-        } else {
-            for (ModelAbsensi absensi : listAbsensi) {
-                if (absensi.getTimestamp().substring(0, 10).equalsIgnoreCase(getDate())) {
-                    if (absensi.getId_user() == PreferenceUtils.getIdAkun(getApplicationContext())) {
-                        listAbsensiToday.add(absensi);
-                    }
-                }
-            }
-        }
+        listAbsensiToday.addAll(filterAbsensiToday(attendanceList));
 
         if (!listAbsensiToday.isEmpty()) {
-            AdapterDataAbsensiHarian itemList = new AdapterDataAbsensiHarian(listAbsensiToday, dbHelper);
-            binding.rvDataAbsensiHarian.setLayoutManager(new LinearLayoutManager(DataAbsensiHarianActivity.this));
-            binding.rvDataAbsensiHarian.setAdapter(itemList);
+            setupRecyclerView(listAbsensiToday);
         } else {
-            Toast.makeText(this, "Anda belum memiliki data absensi harian", Toast.LENGTH_SHORT).show();
+            showNoDataMessage();
         }
     }
 
+    private List<ModelAbsensi> filterAbsensiToday(List<ModelAbsensi> attendanceList) {
+        List<ModelAbsensi> filteredList = new ArrayList<>();
+        int userId = PreferenceUtils.getIdAkun(getApplicationContext());
+        int userRole = PreferenceUtils.getIdRole(getApplicationContext());
+
+        for (ModelAbsensi absensi : attendanceList) {
+            if (absensi.getTimestamp().substring(0, 10).equalsIgnoreCase(getDate())) {
+                if (userRole == 2 || absensi.getId_user() == userId) {
+                    filteredList.add(absensi);
+                }
+            }
+        }
+
+        return filteredList;
+    }
+
+    private void setupRecyclerView(List<ModelAbsensi> attendanceList) {
+        AdapterDataAbsensiHarian itemList = new AdapterDataAbsensiHarian(attendanceList, dbHelper);
+        binding.rvDataAbsensiHarian.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvDataAbsensiHarian.setAdapter(itemList);
+    }
+
+    private void showFetchFailedMessage(String message) {
+        Toast.makeText(this, "Gagal mengambil data absensi: " + message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showNoDataMessage() {
+        Toast.makeText(this, "Anda belum memiliki data absensi harian", Toast.LENGTH_SHORT).show();
+    }
+
     private void setupBackPressedHandler() {
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 finish();
             }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
+        });
     }
 }

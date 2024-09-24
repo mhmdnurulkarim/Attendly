@@ -15,7 +15,7 @@ import com.oci.presensi.util.PreferenceUtils;
 public class HomeActivity extends AppCompatActivity {
 
     private ActivityHomeBinding binding;
-    DataHelper dbHelper;
+    private DataHelper dbHelper;
     private int userRole;
 
     @Override
@@ -24,7 +24,12 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         dbHelper = new DataHelper(this);
+        dbHelper.getAkunFromFirebase();
         dbHelper.getAttendanceFromFirestore();
 
         userRole = PreferenceUtils.getIdRole(getApplicationContext());
@@ -34,6 +39,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupUI() {
+        setupUserRole();
+        setupButtonListeners();
+    }
+
+    private void setupUserRole() {
         if (userRole == 3) {
             disableButton(binding.btnDataKaryawan);
             disableButton(binding.btnDataRekapAbsensi);
@@ -41,7 +51,9 @@ public class HomeActivity extends AppCompatActivity {
 
         binding.txtIDKaryawan.setText("ID Karyawan : " + userRole);
         binding.txtNamaKaryawan.setText("Nama Karyawan : " + PreferenceUtils.getNama(getApplicationContext()));
+    }
 
+    private void setupButtonListeners() {
         binding.btnAbsensi.setOnClickListener(v -> goToPage(AbsensiActivity.class));
         binding.btnDataKaryawan.setOnClickListener(v -> {
             if (userRole != 3) {

@@ -4,16 +4,14 @@ import static com.oci.presensi.util.Utils.getDate;
 import static com.oci.presensi.util.Utils.getDateTime;
 import static com.oci.presensi.util.Utils.getTime;
 
-import static java.security.AccessController.getContext;
-
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.oci.presensi.databinding.ActivityAbsensiBinding;
 import com.oci.presensi.helper.DataHelper;
 import com.oci.presensi.model.ModelAbsensi;
@@ -34,6 +32,10 @@ public class AbsensiActivity extends AppCompatActivity {
         binding = ActivityAbsensiBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         dbHelper = new DataHelper(this);
         dbHelper.getAttendanceFromFirestore();
         initializeAbsensiList();
@@ -70,30 +72,50 @@ public class AbsensiActivity extends AppCompatActivity {
     private void setupButtonListeners() {
         String now = getTime();
 
-        if (now.compareTo("06:00") >= 0 && now.compareTo("08:00") <= 0) {
-            binding.btnDatang.setEnabled(true);
-            binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greenText));
-            binding.btnPulang.setEnabled(false);
-            binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
-            binding.btnDatang.setOnClickListener(v -> handleAbsensi("DATANG"));
-        } else if (now.compareTo("16:00") >= 0 && now.compareTo("20:00") <= 0) {
-            binding.btnDatang.setEnabled(false);
-            binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
-            binding.btnPulang.setEnabled(true);
-            binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.redText));
-            binding.btnPulang.setOnClickListener(v -> handleAbsensi("PULANG"));
+        if (isDatangTime(now)) {
+            setupDatangButton();
+        } else if (isPulangTime(now)) {
+            setupPulangButton();
         } else {
-            binding.btnDatang.setEnabled(false);
-            binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
-            binding.btnPulang.setEnabled(false);
-            binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+            disableButtons();
         }
+    }
+
+    private boolean isDatangTime(String now) {
+        return now.compareTo("06:00") >= 0 && now.compareTo("08:00") <= 0;
+    }
+
+    private boolean isPulangTime(String now) {
+        return now.compareTo("16:00") >= 0 && now.compareTo("20:00") <= 0;
+    }
+
+    private void setupDatangButton() {
+        binding.btnDatang.setEnabled(true);
+        binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greenText));
+        binding.btnPulang.setEnabled(false);
+        binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+        binding.btnDatang.setOnClickListener(v -> handleAbsensi("DATANG"));
+    }
+
+    private void setupPulangButton() {
+        binding.btnDatang.setEnabled(false);
+        binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+        binding.btnPulang.setEnabled(true);
+        binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.redText));
+        binding.btnPulang.setOnClickListener(v -> handleAbsensi("PULANG"));
+    }
+
+    private void disableButtons() {
+        binding.btnDatang.setEnabled(false);
+        binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
+        binding.btnPulang.setEnabled(false);
+        binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
     }
 
     private void handleAbsensi(String keterangan) {
         if (isAlreadyAbsensi(keterangan)) {
             String message = "Anda sudah melakukan absensi " + keterangan.toLowerCase() + "!";
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
         } else {
             showAbsensiDialog(keterangan);
         }
@@ -143,18 +165,9 @@ public class AbsensiActivity extends AppCompatActivity {
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                showBatalAbsensiDialog();
+                finish();
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
-    }
-
-    private void showBatalAbsensiDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("BATAL ABSENSI")
-                .setMessage("Apakah anda yakin batal melakukan absensi?")
-                .setPositiveButton("YA", (dialog, which) -> finish())
-                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
-                .create().show();
     }
 }

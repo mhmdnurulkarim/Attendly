@@ -3,12 +3,12 @@ package com.oci.presensi;
 import static com.oci.presensi.util.Utils.getPeriode;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.oci.presensi.adapter.AdapterDataRekapAbsensi;
 import com.oci.presensi.databinding.ActivityDataRekapAbsensiBinding;
 import com.oci.presensi.helper.DataHelper;
@@ -18,9 +18,9 @@ import java.util.List;
 
 public class DataRekapAbsensiActivity extends AppCompatActivity {
 
-    ActivityDataRekapAbsensiBinding binding;
-    DataHelper dbHelper;
-    List<ModelAkun> listPegawai;
+    private ActivityDataRekapAbsensiBinding binding;
+    private DataHelper dbHelper;
+    private List<ModelAkun> listPegawai;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,26 +28,35 @@ public class DataRekapAbsensiActivity extends AppCompatActivity {
         binding = ActivityDataRekapAbsensiBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         dbHelper = new DataHelper(this);
+        dbHelper.getAkunFromFirebase();
         dbHelper.getAttendanceFromFirestore();
         listPegawai = dbHelper.getAllAkun();
 
-        binding.textTitle.setText("DATA REKAP ABSENSI");
-        binding.txtPeriode.setText("Periode " + getPeriode());
-
-        if (!listPegawai.isEmpty()) {
-            setupRecyclerView();
-        } else {
-            Toast.makeText(this, "Anda belum memiliki data absensi", Toast.LENGTH_SHORT).show();
-        }
-
+        setupUI();
+        setupRecyclerView();
         setupBackPressedHandler();
     }
 
+    private void setupUI() {
+        binding.textTitle.setText("DATA REKAP ABSENSI");
+        binding.txtPeriode.setText("Periode " + getPeriode());
+
+        if (listPegawai.isEmpty()) {
+            showNoDataMessage();
+        }
+    }
+
     private void setupRecyclerView() {
-        AdapterDataRekapAbsensi itemList = new AdapterDataRekapAbsensi(this, listPegawai);
-        binding.rvDataRekapAbsensi.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvDataRekapAbsensi.setAdapter(itemList);
+        if (!listPegawai.isEmpty()) {
+            AdapterDataRekapAbsensi itemList = new AdapterDataRekapAbsensi(this, listPegawai);
+            binding.rvDataRekapAbsensi.setLayoutManager(new LinearLayoutManager(this));
+            binding.rvDataRekapAbsensi.setAdapter(itemList);
+        }
     }
 
     private void setupBackPressedHandler() {
@@ -58,5 +67,9 @@ public class DataRekapAbsensiActivity extends AppCompatActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    private void showNoDataMessage() {
+        Snackbar.make(binding.getRoot(), "Anda belum memiliki data absensi", Snackbar.LENGTH_SHORT).show();
     }
 }

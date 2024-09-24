@@ -50,31 +50,25 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
         binding = ActivityDataRekapAbsensiDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         int id = getIntent().getIntExtra("idUser", 0);
 
         dbHelper = new DataHelper(this);
+        dbHelper.getAkunFromFirebase();
         dbHelper.getAttendanceFromFirestore();
         listAbsensi = dbHelper.getAllAbsensiByIdUser(id);
         akun = dbHelper.getAkun(id);
 
-        setTextViews(akun);
-
-        if (!listAbsensi.isEmpty()) {
-            setupRecyclerView();
-        }
-
-        binding.print.setOnClickListener(v -> {
-            if (listAbsensi == null || listAbsensi.isEmpty()) {
-                Toast.makeText(this, "Tidak ada data absensi yang tersedia.", Toast.LENGTH_SHORT).show();
-            } else {
-                checkPermissionAndPrint();
-            }
-        });
-
+        setupUI();
+        setupRecyclerView();
+        setupPrintButton();
         setupBackPressedHandler();
     }
 
-    private void setTextViews(ModelAkun akun) {
+    private void setupUI() {
         binding.txtPeriode.setText("Periode " + getPeriode());
         binding.txtIDKaryawan.setText("ID Karyawan : " + akun.getIdUser());
         binding.txtNamaKaryawan.setText("Nama Karyawan : " + akun.getNama());
@@ -84,10 +78,14 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        List<ModelAbsensiFetch> processedData = prepareAbsensiData(listAbsensi);
-        AdapterDataRekapAbsensiDetail itemList = new AdapterDataRekapAbsensiDetail(processedData, dbHelper);
-        binding.rvDataRekapAbsensiDetail.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvDataRekapAbsensiDetail.setAdapter(itemList);
+        if (!listAbsensi.isEmpty()) {
+            List<ModelAbsensiFetch> processedData = prepareAbsensiData(listAbsensi);
+            AdapterDataRekapAbsensiDetail itemList = new AdapterDataRekapAbsensiDetail(processedData, dbHelper);
+            binding.rvDataRekapAbsensiDetail.setLayoutManager(new LinearLayoutManager(this));
+            binding.rvDataRekapAbsensiDetail.setAdapter(itemList);
+        } else {
+            showNoDataMessage();
+        }
     }
 
     private List<ModelAbsensiFetch> prepareAbsensiData(List<ModelAbsensi> rawAbsensiList) {
@@ -111,6 +109,16 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
         }
 
         return new ArrayList<>(absensiMap.values());
+    }
+
+    private void setupPrintButton() {
+        binding.print.setOnClickListener(v -> {
+            if (listAbsensi == null || listAbsensi.isEmpty()) {
+                showNoDataMessage();
+            } else {
+                checkPermissionAndPrint();
+            }
+        });
     }
 
     private void savePdf(ModelAkun akun, List<ModelAbsensi> listAbsensi) {
@@ -170,6 +178,10 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
         }
+    }
+
+    private void showNoDataMessage() {
+        Toast.makeText(this, "Tidak ada data absensi yang tersedia.", Toast.LENGTH_SHORT).show();
     }
 
     private void setupBackPressedHandler() {

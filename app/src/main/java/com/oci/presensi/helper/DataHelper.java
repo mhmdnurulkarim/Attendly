@@ -1,5 +1,6 @@
 package com.oci.presensi.helper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,49 +30,46 @@ public class DataHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        createTableAkun(db);
+        createTableAbsensi(db);
+        insertDataToTable(db);
+    }
 
-        String CREATE_TABLE_AKUN = "create table akun(" +
-                "id_user integer primary key, " +
-                "username text, " +
-                "password text, " +
-                "id_role integer, " +
-                "nama text, " +
-                "nik text, " +
-                "divisi text);";
+    private void createTableAkun(SQLiteDatabase db) {
+        String CREATE_TABLE_AKUN = "CREATE TABLE akun (" +
+                "id_user INTEGER PRIMARY KEY, " +
+                "username TEXT, " +
+                "password TEXT, " +
+                "id_role INTEGER, " +
+                "nama TEXT, " +
+                "nik TEXT, " +
+                "divisi TEXT)";
         db.execSQL(CREATE_TABLE_AKUN);
+    }
 
-        String CREATE_TABLE_ABSENSI = "create table absensi(" +
-                "id_absensi integer primary key, " +
-                "timestamp text, " +
-                "id_user integer, " +
-                "keterangan text);";
+    private void createTableAbsensi(SQLiteDatabase db) {
+        String CREATE_TABLE_ABSENSI = "CREATE TABLE absensi (" +
+                "id_absensi INTEGER PRIMARY KEY, " +
+                "timestamp TEXT, " +
+                "id_user INTEGER, " +
+                "keterangan TEXT)";
         db.execSQL(CREATE_TABLE_ABSENSI);
+    }
 
+    private void insertDataToTable(SQLiteDatabase db) {
         // 1 Manager
         // 2 Admin
         // 3 Pegawai
 
-        // --------------- INSERT DATA TO TABLE -----------
+        insertAkun(db, 1, "eka", "1234", 1, "Eka", "7894425612", "Manager");
+        insertAkun(db, 2, "dea", "1234", 2, "Dea", "12345672891", "Admin Koordinator");
+        insertAkun(db, 3, "abdul", "1234", 3, "Abdul Rosid", "789445612", "Pekerja Gudang");
+        insertAkun(db, 4, "bakri", "1234", 3, "Bakri", "987456123", "Pekerja Gudang");
+    }
 
-        String INSERT_EKA = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(1, 'eka', '1234', 1, 'Eka', '7894425612', 'Manager');";
-        db.execSQL(INSERT_EKA);
-
-        String INSERT_DEA = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(2, 'dea', '1234', 2, 'Dea', '12345672891', 'Admin Koordinator');";
-        db.execSQL(INSERT_DEA);
-
-        String INSERT_ABDUL = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(3, 'abdul', '1234', 3, 'Abdul Rosid', '789445612', 'Pekerja Gudang');";
-        db.execSQL(INSERT_ABDUL);
-
-        String INSERT_BAKRI = "INSERT INTO akun" +
-                "(id_user, username, password, id_role, nama, nik, divisi) VALUES " +
-                "(4, 'bakri', '1234', 3, 'Bakri', '987456123', 'Pekerja Gudang');";
-        db.execSQL(INSERT_BAKRI);
+    private void insertAkun(SQLiteDatabase db, int idUser, String username, String password, int idRole, String nama, String nik, String divisi) {
+        String INSERT_AKUN = "INSERT INTO akun (id_user, username, password, id_role, nama, nik, divisi) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        db.execSQL(INSERT_AKUN, new String[]{String.valueOf(idUser), username, password, String.valueOf(idRole), nama, nik, divisi});
     }
 
     @Override
@@ -82,27 +80,123 @@ public class DataHelper extends SQLiteOpenHelper {
     }
 
     // ---------------- AKUN --------------
-
     public void addNewAkun(ModelAkun akun) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("INSERT INTO akun (id_user, username, password, id_role, nama, nik, divisi) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                new Object[]{akun.getIdUser(), akun.getUsername(), akun.getPassword(), akun.getId_role(), akun.getNama(), akun.getNik(), akun.getDivisi()});
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("id_user", akun.getIdUser());
+        values.put("username", akun.getUsername());
+        values.put("password", akun.getPassword());
+        values.put("id_role", akun.getId_role());
+        values.put("nama", akun.getNama());
+        values.put("nik", akun.getNik());
+        values.put("divisi", akun.getDivisi());
+        db.insert("akun", null, values);
+
+        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+        Map<String, Object> employee = new HashMap<>();
+        employee.put("id_user", akun.getIdUser());
+        employee.put("username", akun.getUsername());
+        employee.put("password", akun.getPassword());
+        employee.put("id_role", akun.getId_role());
+        employee.put("nama", akun.getNama());
+        employee.put("nik", akun.getNik());
+        employee.put("divisi", akun.getDivisi());
+
+        dbFirestore.collection("akun")
+                .document(String.valueOf(akun.getIdUser()))
+                .set(employee)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Employee added successfully"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error adding employee", e));
     }
 
     public void updateAkun(ModelAkun akun) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("UPDATE akun SET username = ?, password = ?, id_role = ?, nama = ?, nik = ?, divisi = ? WHERE id_user = ?",
-                new Object[]{akun.getUsername(), akun.getPassword(), akun.getId_role(), akun.getNama(), akun.getNik(), akun.getDivisi(), akun.getIdUser()});
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("username", akun.getUsername());
+        values.put("password", akun.getPassword());
+        values.put("id_role", akun.getId_role());
+        values.put("nama", akun.getNama());
+        values.put("nik", akun.getNik());
+        values.put("divisi", akun.getDivisi());
+        db.update("akun", values, "id_user = ?", new String[]{String.valueOf(akun.getIdUser())});
+
+        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+        Map<String, Object> employee = new HashMap<>();
+        employee.put("username", akun.getUsername());
+        employee.put("password", akun.getPassword());
+        employee.put("id_role", akun.getId_role());
+        employee.put("nama", akun.getNama());
+        employee.put("nik", akun.getNik());
+        employee.put("divisi", akun.getDivisi());
+
+        dbFirestore.collection("akun")
+                .document(String.valueOf(akun.getIdUser()))
+                .update(employee)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Employee updated successfully"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error updating employee", e));
     }
 
     public void deleteAkun(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM akun WHERE id_user = ?", new String[]{String.valueOf(id)});
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("akun", "id_user = ?", new String[]{String.valueOf(id)});
+
+        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+        dbFirestore.collection("akun")
+                .document(String.valueOf(id))
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Employee deleted successfully"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error deleting employee", e));
+    }
+
+    public void getAkunFromFirebase() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("akun")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            ModelAkun akun = document.toObject(ModelAkun.class);
+
+                            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM akun WHERE id_user = ?", new String[]{String.valueOf(akun.getIdUser())});
+
+                            if (cursor != null && cursor.moveToFirst()) {
+                                ContentValues values = new ContentValues();
+                                values.put("username", akun.getUsername());
+                                values.put("password", akun.getPassword());
+                                values.put("id_role", akun.getId_role());
+                                values.put("nama", akun.getNama());
+                                values.put("nik", akun.getNik());
+                                values.put("divisi", akun.getDivisi());
+                                sqLiteDatabase.update("akun", values, "id_user = ?", new String[]{String.valueOf(akun.getIdUser())});
+                            } else {
+                                ContentValues values = new ContentValues();
+                                values.put("id_user", akun.getIdUser());
+                                values.put("username", akun.getUsername());
+                                values.put("password", akun.getPassword());
+                                values.put("id_role", akun.getId_role());
+                                values.put("nama", akun.getNama());
+                                values.put("nik", akun.getNik());
+                                values.put("divisi", akun.getDivisi());
+                                sqLiteDatabase.insert("akun", null, values);
+                            }
+
+                            if (cursor != null) {
+                                cursor.close();
+                            }
+                        }
+
+                        sqLiteDatabase.close();
+                    } else {
+                        Log.w("Firestore", "Error getting akun documents.", task.getException());
+                    }
+                });
     }
 
     public List<ModelAkun> getAllAkun() {
         List<ModelAkun> listModelAkun = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM akun", null);
 
         if (cursor.moveToFirst()) {
@@ -119,11 +213,12 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAkun.add(akun);
             } while (cursor.moveToNext());
         }
+        cursor.close();
         return listModelAkun;
     }
 
     public ModelAkun getAkun(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM akun WHERE id_user = ?", new String[]{String.valueOf(id)});
 
         ModelAkun akun = null;
@@ -138,12 +233,13 @@ public class DataHelper extends SQLiteOpenHelper {
                     cursor.getString(6)
             );
         }
+        cursor.close();
         return akun;
     }
 
     public List<ModelAkun> getAllPegawai(int id_tipe_akun) {
         List<ModelAkun> listModelAkun = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM akun WHERE id_role = ?", new String[]{String.valueOf(id_tipe_akun)});
 
         if (cursor.moveToFirst()) {
@@ -160,25 +256,26 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAkun.add(akun);
             } while (cursor.moveToNext());
         }
+        cursor.close();
         return listModelAkun;
     }
 
     public String getNamaUser(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         String nama = null;
         Cursor cursor = db.rawQuery("SELECT nama FROM akun WHERE id_user = ?", new String[]{String.valueOf(id)});
 
         if (cursor.moveToFirst()) {
             nama = cursor.getString(0);
         }
+        cursor.close();
         return nama;
     }
 
     // ---------------- ABSENSI --------------
-
     public List<ModelAbsensi> getAllAbsensi() {
         List<ModelAbsensi> listModelAbsensi = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT id_absensi, timestamp, id_user, keterangan FROM absensi", null);
 
         if (cursor.moveToFirst()) {
@@ -191,29 +288,35 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAbsensi.add(absensi);
             } while (cursor.moveToNext());
         }
+        cursor.close();
         return listModelAbsensi;
     }
 
     public void addNewAbsensi(int id, String timestamp, int idAkun, String keterangan) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("INSERT INTO absensi(id_absensi, timestamp, id_user, keterangan) VALUES (?, ?, ?, ?)",
-                new Object[]{id, timestamp, idAkun, keterangan});
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("id_absensi", id);
+        values.put("timestamp", timestamp);
+        values.put("id_user", idAkun);
+        values.put("keterangan", keterangan);
+        db.insert("absensi", null, values);
     }
 
     public int getLastIdAbsensi() {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT MAX(id_absensi) FROM absensi", null);
         int lastID = 0;
 
         if (cursor.moveToFirst()) {
             lastID = cursor.getInt(0);
         }
+        cursor.close();
         return lastID + 1;
     }
 
     public List<ModelAbsensi> getAllAbsensiByIdUser(int id) {
         List<ModelAbsensi> listModelAbsensi = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT id_absensi, timestamp, id_user, keterangan FROM absensi WHERE id_user = ?", new String[]{String.valueOf(id)});
 
         if (cursor.moveToFirst()) {
@@ -226,10 +329,9 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAbsensi.add(absensi);
             } while (cursor.moveToNext());
         }
+        cursor.close();
         return listModelAbsensi;
     }
-
-    // ---------------- FIRESTORE --------------
 
     public void saveAttendance(int id, String timestamp, int userId, String keterangan) {
         addNewAbsensi(id, timestamp, userId, keterangan);
@@ -259,7 +361,7 @@ public class DataHelper extends SQLiteOpenHelper {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+                        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             ModelAbsensi attendance = document.toObject(ModelAbsensi.class);
@@ -267,17 +369,13 @@ public class DataHelper extends SQLiteOpenHelper {
                             Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM absensi WHERE id_absensi = ?", new String[]{String.valueOf(attendance.getId_absensi())});
 
                             if (cursor != null && cursor.moveToFirst()) {
-                                sqLiteDatabase.execSQL("UPDATE absensi SET " +
-                                        "timestamp = '" + attendance.getTimestamp() + "', " +
-                                        "id_user = '" + attendance.getId_user() + "', " +
-                                        "keterangan = '" + attendance.getKeterangan() + "' " +
-                                        "WHERE id_absensi = '" + attendance.getId_absensi() + "'");
+                                ContentValues values = new ContentValues();
+                                values.put("timestamp", attendance.getTimestamp());
+                                values.put("id_user", attendance.getId_user());
+                                values.put("keterangan", attendance.getKeterangan());
+                                sqLiteDatabase.update("absensi", values, "id_absensi = ?", new String[]{String.valueOf(attendance.getId_absensi())});
                             } else {
-                                sqLiteDatabase.execSQL("INSERT INTO absensi (id_absensi, timestamp, id_user, keterangan) VALUES ('" +
-                                        attendance.getId_absensi() + "','" +
-                                        attendance.getTimestamp() + "','" +
-                                        attendance.getId_user() + "','" +
-                                        attendance.getKeterangan() + "')");
+                                addNewAbsensi(attendance.getId_absensi(), attendance.getTimestamp(), attendance.getId_user(), attendance.getKeterangan());
                             }
 
                             if (cursor != null) {

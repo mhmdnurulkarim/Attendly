@@ -2,18 +2,16 @@ package com.oci.presensi;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.oci.presensi.adapter.AdapterDataKaryawan;
 import com.oci.presensi.databinding.ActivityDataKaryawanBinding;
 import com.oci.presensi.helper.DataHelper;
 import com.oci.presensi.model.ModelAkun;
-import com.oci.presensi.util.PreferenceUtils;
 
 import java.util.List;
 
@@ -29,27 +27,32 @@ public class DataKaryawanActivity extends AppCompatActivity {
         binding = ActivityDataKaryawanBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         dbHelper = new DataHelper(this);
-        dbHelper.getAttendanceFromFirestore();
-        listPegawai = dbHelper.getAllPegawai(3);
+        dbHelper.getAkunFromFirebase();
+        listPegawai = dbHelper.getAllAkun();
 
         setupRecyclerView();
         setupBackPressedHandler();
-
-        binding.fabAdd.setOnClickListener(v -> {
-            startActivity(new Intent(this, DetailKaryawanActivity.class));
-        });
+        setupFabAdd();
     }
 
     private void setupRecyclerView() {
         if (listPegawai.isEmpty()) {
-            Toast.makeText(this, "Anda belum memiliki data karyawan", Toast.LENGTH_SHORT).show();
+            showNoDataMessage();
             return;
         }
 
         AdapterDataKaryawan itemList = new AdapterDataKaryawan(this, listPegawai);
         binding.rvDataKaryawan.setLayoutManager(new LinearLayoutManager(this));
         binding.rvDataKaryawan.setAdapter(itemList);
+    }
+
+    private void showNoDataMessage() {
+        Snackbar.make(binding.getRoot(), "Anda belum memiliki data karyawan", Snackbar.LENGTH_SHORT).show();
     }
 
     private void setupBackPressedHandler() {
@@ -60,5 +63,12 @@ public class DataKaryawanActivity extends AppCompatActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    private void setupFabAdd() {
+        binding.fabAdd.setOnClickListener(v -> {
+            startActivity(new Intent(this, DetailKaryawanActivity.class));
+            finish();
+        });
     }
 }

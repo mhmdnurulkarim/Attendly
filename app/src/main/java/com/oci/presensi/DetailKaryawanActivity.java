@@ -25,37 +25,42 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         binding = ActivityDetailKaryawanBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        init();
+    }
+
+    private void init() {
         int id = getIntent().getIntExtra("idUser", 0);
 
         dbHelper = new DataHelper(this);
-//        dbHelper.getAttendanceFromFirestore();
+        dbHelper.getAkunFromFirebase();
 
         if (id != 0) {
-            binding.btnTambah.setVisibility(View.GONE);
-            binding.lLDelete.setVisibility(View.VISIBLE);
-
-            akun = dbHelper.getAkun(id);
-            setText(akun);
+            setupEditMode(id);
         } else {
-            binding.btnTambah.setVisibility(View.VISIBLE);
-            binding.lLDelete.setVisibility(View.GONE);
-            clearText();
+            setupAddMode();
         }
 
+        setupButtonListeners();
+    }
+
+    private void setupEditMode(int id) {
+        binding.btnTambah.setVisibility(View.GONE);
+        binding.lLDelete.setVisibility(View.VISIBLE);
+
+        akun = dbHelper.getAkun(id);
+        setText(akun);
+    }
+
+    private void setupAddMode() {
+        binding.btnTambah.setVisibility(View.VISIBLE);
+        binding.lLDelete.setVisibility(View.GONE);
+        clearText();
+    }
+
+    private void setupButtonListeners() {
         binding.btnTambah.setOnClickListener(v -> tambahKaryawan());
-
         binding.btnUbah.setOnClickListener(v -> ubahKaryawan(akun));
-
-        binding.btnHapus.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Hapus Data Karyawan")
-                    .setMessage("Apakah anda yakin ingin Hapus Data Karyawan ini?")
-                    .setPositiveButton("YA", (dialog, which) -> {
-                        hapusKaryawan(akun);
-                    })
-                    .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
-                    .create().show();
-        });
+        binding.btnHapus.setOnClickListener(v -> showDeleteConfirmationDialog(akun));
     }
 
     private void tambahKaryawan() {
@@ -88,6 +93,15 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         dbHelper.deleteAkun(akun.getIdUser());
         clearText();
         back();
+    }
+
+    private void showDeleteConfirmationDialog(ModelAkun akun) {
+        new AlertDialog.Builder(this)
+                .setTitle("Hapus Data Karyawan")
+                .setMessage("Apakah anda yakin ingin Hapus Data Karyawan ini?")
+                .setPositiveButton("YA", (dialog, which) -> hapusKaryawan(akun))
+                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
+                .create().show();
     }
 
     private void setText(ModelAkun akun) {

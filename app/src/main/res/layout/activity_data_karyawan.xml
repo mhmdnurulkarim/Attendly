@@ -62,7 +62,7 @@
         android:id="@+id/fabAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
+        android:layout_margin="16dp"
         android:clickable="true"
         app:backgroundTint="@color/greenBackground"
         app:rippleColor="@color/greenText"
