@@ -5,6 +5,9 @@ public class ModelAkun {
     int id_user, id_role;
     String username, password, nama, nik, divisi;
 
+    public ModelAkun() {
+    }
+
     public ModelAkun(int id_user, String username, String password, int id_role, String nama, String nik, String divisi) {
         this.id_user = id_user;
         this.username = username;
