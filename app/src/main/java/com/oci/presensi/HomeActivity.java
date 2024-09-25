@@ -29,7 +29,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void init() {
         dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase();
+        dbHelper.getAkunFromFirebase(() -> {});
         dbHelper.getAttendanceFromFirestore();
 
         userRole = PreferenceUtils.getIdRole(getApplicationContext());

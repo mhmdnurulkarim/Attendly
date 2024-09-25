@@ -4,12 +4,12 @@ import static com.oci.presensi.util.Utils.getDate;
 import static com.oci.presensi.util.Utils.getDateTime;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.oci.presensi.adapter.AdapterDataAbsensiHarian;
 import com.oci.presensi.databinding.ActivityDataAbsensiHarianBinding;
 import com.oci.presensi.helper.DataHelper;
@@ -102,11 +102,11 @@ public class DataAbsensiHarianActivity extends AppCompatActivity {
     }
 
     private void showFetchFailedMessage(String message) {
-        Toast.makeText(this, "Gagal mengambil data absensi: " + message, Toast.LENGTH_SHORT).show();
+        Snackbar.make(findViewById(android.R.id.content), "Gagal mengambil data absensi: " + message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void showNoDataMessage() {
-        Toast.makeText(this, "Anda belum memiliki data absensi harian", Toast.LENGTH_SHORT).show();
+        Snackbar.make(findViewById(android.R.id.content), "Anda belum memiliki data absensi harian", Snackbar.LENGTH_SHORT).show();
     }
 
     private void setupBackPressedHandler() {

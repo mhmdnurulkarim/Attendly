@@ -28,13 +28,11 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FirebaseApp.initializeApp(this);
-
-        init();
+        dbHelper = new DataHelper(this);
+        dbHelper.getAkunFromFirebase(this::init);
     }
 
     private void init() {
-        dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase();
         listAkun = dbHelper.getAllAkun();
 
         if (isUserLoggedIn()) {

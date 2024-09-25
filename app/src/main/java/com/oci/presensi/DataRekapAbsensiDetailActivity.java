@@ -57,7 +57,7 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
         int id = getIntent().getIntExtra("idUser", 0);
 
         dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase();
+        dbHelper.getAkunFromFirebase(() -> {});
         dbHelper.getAttendanceFromFirestore();
         listAbsensi = dbHelper.getAllAbsensiByIdUser(id);
         akun = dbHelper.getAkun(id);

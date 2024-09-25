@@ -33,7 +33,7 @@ public class DataRekapAbsensiActivity extends AppCompatActivity {
 
     private void init() {
         dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase();
+        dbHelper.getAkunFromFirebase(() -> {});
         dbHelper.getAttendanceFromFirestore();
         listPegawai = dbHelper.getAllAkun();
 

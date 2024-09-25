@@ -1,5 +1,6 @@
 package com.oci.presensi.helper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,7 +37,7 @@ public class DataHelper extends SQLiteOpenHelper {
 
     private void createTableAkun(SQLiteDatabase db) {
         String CREATE_TABLE_AKUN = "CREATE TABLE akun (" +
-                "id_user INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "id_user INTEGER PRIMARY KEY, " +
                 "username TEXT, " +
                 "password TEXT, " +
                 "id_role INTEGER, " +
@@ -55,6 +56,13 @@ public class DataHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_ABSENSI);
     }
 
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL("DROP TABLE IF EXISTS akun");
+        db.execSQL("DROP TABLE IF EXISTS absensi");
+        onCreate(db);
+    }
+
     private void insertDataToTable(SQLiteDatabase db) {
         // 1 Manager
         // 2 Admin
@@ -69,13 +77,6 @@ public class DataHelper extends SQLiteOpenHelper {
     private void insertAkun(SQLiteDatabase db, int idUser, String username, String password, int idRole, String nama, String nik, String divisi) {
         String INSERT_AKUN = "INSERT INTO akun (id_user, username, password, id_role, nama, nik, divisi) VALUES (?, ?, ?, ?, ?, ?, ?)";
         db.execSQL(INSERT_AKUN, new String[]{String.valueOf(idUser), username, password, String.valueOf(idRole), nama, nik, divisi});
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        db.execSQL("DROP TABLE IF EXISTS akun");
-        db.execSQL("DROP TABLE IF EXISTS absensi");
-        onCreate(db);
     }
 
     // ---------------- AKUN --------------
@@ -134,7 +135,7 @@ public class DataHelper extends SQLiteOpenHelper {
                 .addOnFailureListener(e -> Log.w("Firestore", "Error deleting employee", e));
     }
 
-    public void getAkunFromFirebase() {
+    public void getAkunFromFirebase(OnDataLoadedCallback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("akun")
                 .get()
@@ -145,38 +146,46 @@ public class DataHelper extends SQLiteOpenHelper {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             ModelAkun akun = document.toObject(ModelAkun.class);
 
-                            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM akun WHERE id_user = ?", new String[]{String.valueOf(akun.getIdUser())});
+                            Log.d("Firestore", "id_user: " + akun.getIdUser());
+
+                            ContentValues values = new ContentValues();
+                            values.put("id_user", akun.getIdUser());
+                            values.put("username", akun.getUsername());
+                            values.put("password", akun.getPassword());
+                            values.put("id_role", akun.getId_role());
+                            values.put("nama", akun.getNama());
+                            values.put("nik", akun.getNik());
+                            values.put("divisi", akun.getDivisi());
+
+                            // Cek apakah id_user sudah ada di SQLite
+                            Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM akun WHERE id_user = ?",
+                                    new String[]{String.valueOf(akun.getIdUser())});
 
                             if (cursor != null && cursor.moveToFirst()) {
-                                sqLiteDatabase.execSQL("UPDATE akun SET " +
-                                        "username = '" + akun.getUsername() + "', " +
-                                        "password = '" + akun.getPassword() + "', " +
-                                        "id_role = '" + akun.getId_role() + "', " +
-                                        "nama = '" + akun.getNama() + "', " +
-                                        "nik = '" + akun.getNik() + "', " +
-                                        "divisi = '" + akun.getDivisi() + "' " +
-                                        "WHERE id_user = '" + akun.getIdUser() + "'");
+                                // Data sudah ada, lakukan update
+                                sqLiteDatabase.update("akun", values, "id_user = ?", new String[]{String.valueOf(akun.getIdUser())});
+                                Log.d("update", akun.getNama());
                             } else {
-                                sqLiteDatabase.execSQL("INSERT INTO akun (id_user, username, password, id_role, nama, nik, divisi) VALUES ('" +
-                                        akun.getIdUser() + "','" +
-                                        akun.getUsername() + "','" +
-                                        akun.getPassword() + "','" +
-                                        akun.getId_role() + "','" +
-                                        akun.getNama() + "','" +
-                                        akun.getNik() + "','" +
-                                        akun.getDivisi() + "')");
+                                // Data belum ada, lakukan insert
+                                sqLiteDatabase.insert("akun", null, values);
+                                Log.d("insert", akun.getNama());
                             }
 
                             if (cursor != null) {
-                                // cursor.close();
+                                cursor.close();
                             }
                         }
 
-                        // sqLiteDatabase.close();
+                        // Trigger callback when data is done loading
+                        callback.onDataLoaded();
                     } else {
                         Log.w("Firestore", "Error getting akun documents.", task.getException());
                     }
                 });
+    }
+
+    public interface OnDataLoadedCallback {
+        void onDataLoaded();
     }
 
     public List<ModelAkun> getAllAkun() {
@@ -257,7 +266,40 @@ public class DataHelper extends SQLiteOpenHelper {
         return nama;
     }
 
+    public int getLastIdAkun() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT MAX(id_user) FROM akun", null);
+        int lastID = 0;
+
+        if (cursor.moveToFirst()) {
+            lastID = cursor.getInt(0);
+        }
+        // cursor.close();
+        return lastID + 1;
+    }
+
     // ---------------- ABSENSI --------------
+    public void addNewAbsensi(int id_absensi, String timestamp, int id_user, String keterangan) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("INSERT INTO absensi(id_absensi, timestamp, id_user, keterangan) VALUES (?, ?, ?, ?)",
+                new Object[]{id_absensi, timestamp, id_user, keterangan});
+
+        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+        Map<String, Object> attendance = new HashMap<>();
+        attendance.put("id_absensi", id_absensi);
+        attendance.put("timestamp", timestamp);
+        attendance.put("id_user", id_user);
+        attendance.put("keterangan", keterangan);
+
+        dbFirestore.collection("absensi")
+                .document(String.valueOf(id_user))
+                .collection("absensiUser")
+                .document(String.valueOf(id_absensi))
+                .set(attendance)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
+    }
+
     public List<ModelAbsensi> getAllAbsensi() {
         List<ModelAbsensi> listModelAbsensi = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -275,12 +317,6 @@ public class DataHelper extends SQLiteOpenHelper {
         }
         // cursor.close();
         return listModelAbsensi;
-    }
-
-    public void addNewAbsensi(int id, String timestamp, int idAkun, String keterangan) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("INSERT INTO absensi(id_absensi, timestamp, id_user, keterangan) VALUES (?, ?, ?, ?)",
-                new Object[]{id, timestamp, idAkun, keterangan});
     }
 
     public int getLastIdAbsensi() {
@@ -312,28 +348,6 @@ public class DataHelper extends SQLiteOpenHelper {
         }
         // cursor.close();
         return listModelAbsensi;
-    }
-
-    public void saveAttendance(int id, String timestamp, int userId, String keterangan) {
-        addNewAbsensi(id, timestamp, userId, keterangan);
-        saveAttendanceToFirestore(id, timestamp, userId, keterangan);
-    }
-
-    public void saveAttendanceToFirestore(int id, String timestamp, int userId, String keterangan) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> attendance = new HashMap<>();
-        attendance.put("id_absensi", id);
-        attendance.put("timestamp", timestamp);
-        attendance.put("id_user", userId);
-        attendance.put("keterangan", keterangan);
-
-        db.collection("absensi")
-                .document(String.valueOf(userId))
-                .collection("absensiUser")
-                .document(String.valueOf(id))
-                .set(attendance)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "DocumentSnapshot successfully written!"))
-                .addOnFailureListener(e -> Log.w("Firestore", "Error writing document", e));
     }
 
     public void getAttendanceFromFirestore() {

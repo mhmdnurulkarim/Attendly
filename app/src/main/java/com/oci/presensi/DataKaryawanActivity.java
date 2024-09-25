@@ -32,7 +32,7 @@ public class DataKaryawanActivity extends AppCompatActivity {
 
     private void init() {
         dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase();
+        dbHelper.getAkunFromFirebase(() -> {});
         listPegawai = dbHelper.getAllAkun();
 
         setupRecyclerView();

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,7 +33,7 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         int id = getIntent().getIntExtra("idUser", 0);
 
         dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase();
+        dbHelper.getAkunFromFirebase(() -> {});
 
         if (id != 0) {
             setupEditMode(id);
@@ -41,6 +42,7 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         }
 
         setupButtonListeners();
+        setupBackPressedHandler();
     }
 
     private void setupEditMode(int id) {
@@ -70,7 +72,7 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         dbHelper.addNewAkun(akun);
 
         clearText();
-        back();
+        move();
     }
 
     private void ubahKaryawan(ModelAkun akun) {
@@ -86,13 +88,13 @@ public class DetailKaryawanActivity extends AppCompatActivity {
 
         dbHelper.updateAkun(akun);
         clearText();
-        back();
+        move();
     }
 
     private void hapusKaryawan(ModelAkun akun) {
         dbHelper.deleteAkun(akun.getIdUser());
         clearText();
-        back();
+        move();
     }
 
     private void showDeleteConfirmationDialog(ModelAkun akun) {
@@ -133,8 +135,19 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         binding.etDivisi.setText("");
     }
 
-    private void back(){
+    private void move(){
         startActivity(new Intent(this, DataKaryawanActivity.class));
         finish();
+    }
+
+    private void setupBackPressedHandler() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                startActivity(new Intent(binding.getRoot().getContext(), DataKaryawanActivity.class));
+                finish();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 }
