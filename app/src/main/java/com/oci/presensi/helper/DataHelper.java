@@ -32,7 +32,6 @@ public class DataHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createTableAkun(db);
         createTableAbsensi(db);
-        insertDataToTable(db);
     }
 
     private void createTableAkun(SQLiteDatabase db) {
@@ -61,22 +60,6 @@ public class DataHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS akun");
         db.execSQL("DROP TABLE IF EXISTS absensi");
         onCreate(db);
-    }
-
-    private void insertDataToTable(SQLiteDatabase db) {
-        // 1 Manager
-        // 2 Admin
-        // 3 Pegawai
-
-//        insertAkun(db, 1, "eka", "1234", 1, "Eka", "7894425612", "Manager");
-//        insertAkun(db, 2, "dea", "1234", 2, "Dea", "12345672891", "Admin Koordinator");
-//        insertAkun(db, 3, "abdul", "1234", 3, "Abdul Rosid", "789445612", "Pekerja Gudang");
-//        insertAkun(db, 4, "bakri", "1234", 3, "Bakri", "987456123", "Pekerja Gudang");
-    }
-
-    private void insertAkun(SQLiteDatabase db, int idUser, String username, String password, int idRole, String nama, String nik, String divisi) {
-        String INSERT_AKUN = "INSERT INTO akun (id_user, username, password, id_role, nama, nik, divisi) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        db.execSQL(INSERT_AKUN, new String[]{String.valueOf(idUser), username, password, String.valueOf(idRole), nama, nik, divisi});
     }
 
     // ---------------- AKUN --------------
@@ -157,18 +140,13 @@ public class DataHelper extends SQLiteOpenHelper {
                             values.put("nik", akun.getNik());
                             values.put("divisi", akun.getDivisi());
 
-                            // Cek apakah id_user sudah ada di SQLite
                             Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM akun WHERE id_user = ?",
                                     new String[]{String.valueOf(akun.getIdUser())});
 
                             if (cursor != null && cursor.moveToFirst()) {
-                                // Data sudah ada, lakukan update
                                 sqLiteDatabase.update("akun", values, "id_user = ?", new String[]{String.valueOf(akun.getIdUser())});
-                                Log.d("update", akun.getNama());
                             } else {
-                                // Data belum ada, lakukan insert
                                 sqLiteDatabase.insert("akun", null, values);
-                                Log.d("insert", akun.getNama());
                             }
 
                             if (cursor != null) {
@@ -176,7 +154,6 @@ public class DataHelper extends SQLiteOpenHelper {
                             }
                         }
 
-                        // Trigger callback when data is done loading
                         callback.onDataLoaded();
                     } else {
                         Log.w("Firestore", "Error getting akun documents.", task.getException());
@@ -207,7 +184,7 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAkun.add(akun);
             } while (cursor.moveToNext());
         }
-        // cursor.close();
+         cursor.close();
         return listModelAkun;
     }
 
@@ -227,7 +204,7 @@ public class DataHelper extends SQLiteOpenHelper {
                     cursor.getString(6)
             );
         }
-        // cursor.close();
+         cursor.close();
         return akun;
     }
 
@@ -250,7 +227,7 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAkun.add(akun);
             } while (cursor.moveToNext());
         }
-        // cursor.close();
+         cursor.close();
         return listModelAkun;
     }
 
@@ -262,7 +239,7 @@ public class DataHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             nama = cursor.getString(0);
         }
-        // cursor.close();
+         cursor.close();
         return nama;
     }
 
@@ -274,7 +251,7 @@ public class DataHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             lastID = cursor.getInt(0);
         }
-        // cursor.close();
+         cursor.close();
         return lastID + 1;
     }
 
@@ -315,7 +292,7 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAbsensi.add(absensi);
             } while (cursor.moveToNext());
         }
-        // cursor.close();
+         cursor.close();
         return listModelAbsensi;
     }
 
@@ -327,7 +304,7 @@ public class DataHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             lastID = cursor.getInt(0);
         }
-        // cursor.close();
+         cursor.close();
         return lastID + 1;
     }
 
@@ -346,7 +323,7 @@ public class DataHelper extends SQLiteOpenHelper {
                 listModelAbsensi.add(absensi);
             } while (cursor.moveToNext());
         }
-        // cursor.close();
+         cursor.close();
         return listModelAbsensi;
     }
 
@@ -378,11 +355,11 @@ public class DataHelper extends SQLiteOpenHelper {
                             }
 
                             if (cursor != null) {
-                                // cursor.close();
+                                 cursor.close();
                             }
                         }
 
-                        // sqLiteDatabase.close();
+                         sqLiteDatabase.close();
                     } else {
                         Log.w("Firestore", "Error getting attendance documents.", task.getException());
                     }

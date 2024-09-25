@@ -82,11 +82,11 @@ public class AbsensiActivity extends AppCompatActivity {
     }
 
     private boolean isDatangTime(String now) {
-        return now.compareTo("01:00") >= 0 && now.compareTo("08:00") <= 0;
+        return now.compareTo("06:00") >= 0 && now.compareTo("08:00") <= 0;
     }
 
     private boolean isPulangTime(String now) {
-        return now.compareTo("16:00") >= 0 && now.compareTo("23:00") <= 0;
+        return now.compareTo("16:00") >= 0 && now.compareTo("20:00") <= 0;
     }
 
     private void setupDatangButton() {

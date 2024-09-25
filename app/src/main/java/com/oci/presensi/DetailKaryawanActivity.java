@@ -3,22 +3,31 @@ package com.oci.presensi;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.oci.presensi.databinding.ActivityDetailKaryawanBinding;
 import com.oci.presensi.helper.DataHelper;
 import com.oci.presensi.model.ModelAkun;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DetailKaryawanActivity extends AppCompatActivity {
 
     private ActivityDetailKaryawanBinding binding;
     private DataHelper dbHelper;
     private ModelAkun akun;
-    private String idUserString, username, password, idRoleString, nama, nik, divisi;
+    private String username, password, nama, nik, divisi;
     private int idUser, idRole;
+    private Map<Integer, String> divisiOptions = new HashMap<>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +40,14 @@ public class DetailKaryawanActivity extends AppCompatActivity {
 
     private void init() {
         int id = getIntent().getIntExtra("idUser", 0);
+        divisiOptions.put(1, "Manager");
+        divisiOptions.put(2, "Admin Koordinator");
+        divisiOptions.put(3, "Pekerja Gudang");
 
         dbHelper = new DataHelper(this);
         dbHelper.getAkunFromFirebase(() -> {});
+
+        setupDivisiDropdown();
 
         if (id != 0) {
             setupEditMode(id);
@@ -43,6 +57,27 @@ public class DetailKaryawanActivity extends AppCompatActivity {
 
         setupButtonListeners();
         setupBackPressedHandler();
+    }
+
+    private void setupDivisiDropdown() {
+        List<String> divisiList = new ArrayList<>(divisiOptions.values());
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, divisiList);
+        binding.inputDivisi.setAdapter(adapter);
+
+        binding.inputDivisi.setOnItemClickListener((parent, view, position, id) -> {
+            divisi = adapter.getItem(position);
+            idRole = getIdFromDivisi(divisi);
+        });
+    }
+
+    // Mendapatkan idRole dari nama divisi
+    private int getIdFromDivisi(String divisi) {
+        for (Map.Entry<Integer, String> entry : divisiOptions.entrySet()) {
+            if (entry.getValue().equals(divisi)) {
+                return entry.getKey();
+            }
+        }
+        return 0;
     }
 
     private void setupEditMode(int id) {
@@ -68,17 +103,19 @@ public class DetailKaryawanActivity extends AppCompatActivity {
     private void tambahKaryawan() {
         getText();
 
+        idUser = dbHelper.getLastIdAkun();
+
         ModelAkun akun = new ModelAkun(idUser, username, password, idRole, nama, nik, divisi);
         dbHelper.addNewAkun(akun);
 
         clearText();
         move();
+        Snackbar.make(binding.getRoot(), "Akun berhasil ditambahkan", Snackbar.LENGTH_SHORT).show();
     }
 
     private void ubahKaryawan(ModelAkun akun) {
         getText();
 
-        akun.setIdUser(idUser);
         akun.setUsername(username);
         akun.setPassword(password);
         akun.setId_role(idRole);
@@ -89,12 +126,14 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         dbHelper.updateAkun(akun);
         clearText();
         move();
+        Snackbar.make(binding.getRoot(), "Data akun berhasil diupdate", Snackbar.LENGTH_SHORT).show();
     }
 
     private void hapusKaryawan(ModelAkun akun) {
         dbHelper.deleteAkun(akun.getIdUser());
         clearText();
         move();
+        Snackbar.make(binding.getRoot(), "Akun berhasil dihapus", Snackbar.LENGTH_SHORT).show();
     }
 
     private void showDeleteConfirmationDialog(ModelAkun akun) {
@@ -107,32 +146,29 @@ public class DetailKaryawanActivity extends AppCompatActivity {
     }
 
     private void setText(ModelAkun akun) {
-        binding.etId.setText(String.valueOf(akun.getIdUser()));
-        binding.etUsername.setText(akun.getUsername());
-        binding.etPassword.setText(akun.getPassword());
-        binding.etIdRole.setText(String.valueOf(akun.getId_role()));
-        binding.etNama.setText(akun.getNama());
-        binding.etNik.setText(akun.getNik());
-        binding.etDivisi.setText(akun.getDivisi());
+        binding.inputUsername.setText(akun.getUsername());
+        binding.inputPassword.setText(akun.getPassword());
+        binding.inputNama.setText(akun.getNama());
+        binding.inputNik.setText(akun.getNik());
+
+        // Menampilkan divisi di dropdown
+        binding.inputDivisi.setText(akun.getDivisi(), false);
+        divisi = akun.getDivisi();  // Set nilai divisi berdasarkan akun
     }
 
     private void getText() {
-        idUserString = binding.etId.getText().toString();
-        username = binding.etUsername.getText().toString();
-        password = binding.etPassword.getText().toString();
-        idRoleString = binding.etIdRole.getText().toString();
-        nama = binding.etNama.getText().toString();
-        nik = binding.etNik.getText().toString();
-        divisi = binding.etDivisi.getText().toString();
-
-        idUser = Integer.parseInt(idUserString);
-        idRole = Integer.parseInt(idRoleString);
+        username = binding.inputUsername.getText().toString();
+        password = binding.inputPassword.getText().toString();
+        nama = binding.inputNama.getText().toString();
+        nik = binding.inputNik.getText().toString();
     }
 
     private void clearText() {
-        binding.etNama.setText("");
-        binding.etNik.setText("");
-        binding.etDivisi.setText("");
+        binding.inputUsername.setText("");
+        binding.inputPassword.setText("");
+        binding.inputNama.setText("");
+        binding.inputNik.setText("");
+        binding.inputDivisi.setText("");
     }
 
     private void move(){
