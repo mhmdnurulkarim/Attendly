@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -57,7 +57,8 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
         int id = getIntent().getIntExtra("idUser", 0);
 
         dbHelper = new DataHelper(this);
-        dbHelper.getAkunFromFirebase(() -> {});
+        dbHelper.getAkunFromFirebase(() -> {
+        });
         dbHelper.getAttendanceFromFirestore();
         listAbsensi = dbHelper.getAllAbsensiByIdUser(id);
         akun = dbHelper.getAkun(id);
@@ -96,13 +97,13 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
             ModelAbsensiFetch absensiFetch = absensiMap.get(userId);
 
             if (absensiFetch == null) {
-                absensiFetch = new ModelAbsensiFetch(userId, null, null);
+                absensiFetch = new ModelAbsensiFetch(userId, null, null, null, null);
             }
 
-            if (absensi.getKeterangan().equalsIgnoreCase("DATANG")) {
-                absensiFetch = new ModelAbsensiFetch(userId, absensi.getTimestamp(), absensiFetch.getPulangTimestamp());
-            } else if (absensi.getKeterangan().equalsIgnoreCase("PULANG")) {
-                absensiFetch = new ModelAbsensiFetch(userId, absensiFetch.getDatangTimestamp(), absensi.getTimestamp());
+            if (absensi.getKeterangan().equalsIgnoreCase("Datang") || absensi.getKeterangan().equalsIgnoreCase("Datang (Terlambat)")) {
+                absensiFetch = new ModelAbsensiFetch(userId, absensi.getKeterangan(), absensi.getTimestamp(), absensiFetch.getKetaranganPulang(), absensiFetch.getPulangTimestamp());
+            } else if (absensi.getKeterangan().equalsIgnoreCase("Pulang")) {
+                absensiFetch = new ModelAbsensiFetch(userId, absensiFetch.getKeteranganDatang(), absensiFetch.getDatangTimestamp(), absensi.getKeterangan(), absensi.getTimestamp());
             }
 
             absensiMap.put(userId, absensiFetch);
@@ -158,10 +159,10 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
 
             document.close();
             outputStream.close();
-            Toast.makeText(this, "PDF disimpan di Download", Toast.LENGTH_LONG).show();
+            Snackbar.make(binding.getRoot(), "PDF disimpan di Download", Snackbar.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Gagal membuat PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Snackbar.make(binding.getRoot(), "Gagal membuat PDF: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -181,7 +182,7 @@ public class DataRekapAbsensiDetailActivity extends AppCompatActivity {
     }
 
     private void showNoDataMessage() {
-        Toast.makeText(this, "Tidak ada data absensi yang tersedia.", Toast.LENGTH_SHORT).show();
+        Snackbar.make(binding.getRoot(), "Tidak ada data absensi yang tersedia.", Snackbar.LENGTH_SHORT).show();
     }
 
     private void setupBackPressedHandler() {

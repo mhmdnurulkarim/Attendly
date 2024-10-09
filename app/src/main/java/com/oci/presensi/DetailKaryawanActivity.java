@@ -101,7 +101,7 @@ public class DetailKaryawanActivity extends AppCompatActivity {
     }
 
     private void tambahKaryawan() {
-        getText();
+        validateInput();
 
         idUser = dbHelper.getLastIdAkun();
 
@@ -114,7 +114,7 @@ public class DetailKaryawanActivity extends AppCompatActivity {
     }
 
     private void ubahKaryawan(ModelAkun akun) {
-        getText();
+        validateInput();
 
         akun.setUsername(username);
         akun.setPassword(password);
@@ -136,24 +136,15 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         Snackbar.make(binding.getRoot(), "Akun berhasil dihapus", Snackbar.LENGTH_SHORT).show();
     }
 
-    private void showDeleteConfirmationDialog(ModelAkun akun) {
-        new AlertDialog.Builder(this)
-                .setTitle("Hapus Data Karyawan")
-                .setMessage("Apakah anda yakin ingin Hapus Data Karyawan ini?")
-                .setPositiveButton("YA", (dialog, which) -> hapusKaryawan(akun))
-                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
-                .create().show();
-    }
-
     private void setText(ModelAkun akun) {
         binding.inputUsername.setText(akun.getUsername());
         binding.inputPassword.setText(akun.getPassword());
         binding.inputNama.setText(akun.getNama());
         binding.inputNik.setText(akun.getNik());
 
-        // Menampilkan divisi di dropdown
         binding.inputDivisi.setText(akun.getDivisi(), false);
-        divisi = akun.getDivisi();  // Set nilai divisi berdasarkan akun
+        divisi = akun.getDivisi();
+        idRole = getIdFromDivisi(divisi);
     }
 
     private void getText() {
@@ -163,12 +154,49 @@ public class DetailKaryawanActivity extends AppCompatActivity {
         nik = binding.inputNik.getText().toString();
     }
 
+    private void validateInput() {
+        getText();
+
+        if (username.isEmpty()) {
+            binding.inputUsername.setError("Username tidak boleh kosong");
+            binding.inputUsername.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            binding.inputPassword.setError("Password tidak boleh kosong");
+            binding.inputPassword.requestFocus();
+            return;
+        }
+
+        if (nama.isEmpty()) {
+            binding.inputNama.setError("Nama tidak boleh kosong");
+            binding.inputNama.requestFocus();
+            return;
+        }
+
+        if (nik.isEmpty()) {
+            binding.inputNik.setError("NIK tidak boleh kosong");
+            binding.inputNik.requestFocus();
+        }
+
+    }
+
     private void clearText() {
         binding.inputUsername.setText("");
         binding.inputPassword.setText("");
         binding.inputNama.setText("");
         binding.inputNik.setText("");
         binding.inputDivisi.setText("");
+    }
+
+    private void showDeleteConfirmationDialog(ModelAkun akun) {
+        new AlertDialog.Builder(this)
+                .setTitle("Hapus Data Karyawan")
+                .setMessage("Apakah anda yakin ingin Hapus Data Karyawan ini?")
+                .setPositiveButton("YA", (dialog, which) -> hapusKaryawan(akun))
+                .setNegativeButton("TIDAK", (dialog, which) -> dialog.dismiss())
+                .create().show();
     }
 
     private void move(){

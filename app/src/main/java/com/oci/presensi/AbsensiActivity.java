@@ -82,19 +82,27 @@ public class AbsensiActivity extends AppCompatActivity {
     }
 
     private boolean isDatangTime(String now) {
-        return now.compareTo("06:00") >= 0 && now.compareTo("08:00") <= 0;
+        return now.compareTo("06:00") >= 0 && now.compareTo("16:00") <= 0;
     }
 
     private boolean isPulangTime(String now) {
-        return now.compareTo("16:00") >= 0 && now.compareTo("20:00") <= 0;
+        return now.compareTo("16:00") >= 0 && now.compareTo("21:00") <= 0;
     }
 
     private void setupDatangButton() {
+        String keterangan;
         binding.btnDatang.setEnabled(true);
         binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greenText));
         binding.btnPulang.setEnabled(false);
         binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
-        binding.btnDatang.setOnClickListener(v -> handleAbsensi("DATANG"));
+
+        String now = getTime();
+        if (now.compareTo("08:00") >= 0 && now.compareTo("16:00") <= 0) {
+            keterangan = "Datang (Terlambat)";
+        } else {
+            keterangan = "Datang";
+        }
+        binding.btnDatang.setOnClickListener(v -> handleAbsensi(keterangan));
     }
 
     private void setupPulangButton() {
@@ -102,7 +110,7 @@ public class AbsensiActivity extends AppCompatActivity {
         binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
         binding.btnPulang.setEnabled(true);
         binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.redText));
-        binding.btnPulang.setOnClickListener(v -> handleAbsensi("PULANG"));
+        binding.btnPulang.setOnClickListener(v -> handleAbsensi("Pulang"));
     }
 
     private void disableButtons() {
@@ -131,7 +139,7 @@ public class AbsensiActivity extends AppCompatActivity {
     }
 
     private void showAbsensiDialog(String keterangan) {
-        String title = "ABSEN " + keterangan;
+        String title = "Absen " + keterangan;
         String message = "Lakukan absensi " + keterangan.toLowerCase() + "?";
 
         new AlertDialog.Builder(this)
@@ -153,7 +161,7 @@ public class AbsensiActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog(String keterangan) {
-        String message = "BERHASIL MELAKUKAN ABSENSI " + keterangan;
+        String message = "Berhasil Melakukan absensi " + keterangan;
         new AlertDialog.Builder(this)
                 .setMessage(message)
                 .setCancelable(true)

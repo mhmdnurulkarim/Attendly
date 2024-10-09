@@ -34,8 +34,10 @@ public class AdapterDataRekapAbsensiDetail extends RecyclerView.Adapter<AdapterD
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ModelAbsensiFetch absensi = itemList.get(position);
         holder.nama.setText(dataHelper.getNamaUser(absensi.getUserId()));
-        holder.jamDtg.setText(absensi.getDatangTimestamp() != null ? absensi.getDatangTimestamp() : "Belum hadir");
-        holder.jamPlg.setText(absensi.getPulangTimestamp() != null ? absensi.getPulangTimestamp() : "Belum pulang");
+        holder.ketDtg.setText(absensi.getKeteranganDatang() != null ? absensi.getKeteranganDatang() : "Tidak Datang");
+        holder.ketPlg.setText(absensi.getKetaranganPulang() != null ? absensi.getKetaranganPulang() : "Tidak Datang");
+        holder.jamDtg.setText(absensi.getDatangTimestamp() != null ? absensi.getDatangTimestamp() : "Tidak Datang");
+        holder.jamPlg.setText(absensi.getPulangTimestamp() != null ? absensi.getPulangTimestamp() : "Tidak Datang");
     }
 
     @Override
@@ -45,12 +47,16 @@ public class AdapterDataRekapAbsensiDetail extends RecyclerView.Adapter<AdapterD
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView nama;
+        private final TextView ketDtg;
+        private final TextView ketPlg;
         private final TextView jamDtg;
         private final TextView jamPlg;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             nama = itemView.findViewById(R.id.nama);
+            ketDtg = itemView.findViewById(R.id.keteranganDatang);
+            ketPlg = itemView.findViewById(R.id.keteranganPulang);
             jamDtg = itemView.findViewById(R.id.jamDatang);
             jamPlg = itemView.findViewById(R.id.jamPulang);
         }
