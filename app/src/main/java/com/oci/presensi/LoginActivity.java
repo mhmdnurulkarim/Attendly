@@ -35,10 +35,6 @@ public class LoginActivity extends AppCompatActivity {
     private void init() {
         listAkun = dbHelper.getAllAkun();
 
-        if (isUserLoggedIn()) {
-            goToHome();
-        }
-
         setupLoginButton();
         setupBackPressedHandler();
     }
@@ -63,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         ModelAkun akun = findAkun(username, password);
         if (akun != null) {
             saveAkunToPreferences(akun);
-            goToHome();
+            goToPage(HomeActivity.class);
         } else {
             showInvalidAccountMessage();
         }
@@ -122,13 +118,9 @@ public class LoginActivity extends AppCompatActivity {
                 .create().show();
     }
 
-    private void goToHome() {
-        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+    private void goToPage(Class<?> destinationActivity) {
+        Intent intent = new Intent(LoginActivity.this, destinationActivity);
         startActivity(intent);
         finish();
-    }
-
-    private boolean isUserLoggedIn() {
-        return PreferenceUtils.getIdAkun(this) != 0;
     }
 }

@@ -2,6 +2,7 @@ package com.oci.presensi;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.OnBackPressedCallback;
@@ -44,9 +45,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupUserRole() {
-        if (userRole == 3) {
-            disableButton(binding.btnDataKaryawan);
-            disableButton(binding.btnDataRekapAbsensi);
+        if (userRole == 1) {
+            hideButton(binding.btnDataKaryawan);
+        } else if (userRole == 3) {
+            hideButton(binding.btnDataKaryawan);
+            hideButton(binding.btnDataRekapAbsensi);
         }
 
         binding.txtIDKaryawan.setText("ID Karyawan : " + userRole);
@@ -55,23 +58,15 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupButtonListeners() {
         binding.btnAbsensi.setOnClickListener(v -> goToPage(AbsensiActivity.class));
-        binding.btnDataKaryawan.setOnClickListener(v -> {
-            if (userRole != 3) {
-                goToPage(DataKaryawanActivity.class);
-            }
-        });
+        binding.btnDataKaryawan.setOnClickListener(v -> goToPage(DataKaryawanActivity.class));
         binding.btnDataAbsensiHarian.setOnClickListener(v -> goToPage(DataAbsensiHarianActivity.class));
-        binding.btnDataRekapAbsensi.setOnClickListener(v -> {
-            if (userRole != 3) {
-                goToPage(DataRekapAbsensiActivity.class);
-            }
-        });
+        binding.btnDataRekapAbsensi.setOnClickListener(v -> goToPage(DataRekapAbsensiActivity.class));
         binding.btnLogOut.setOnClickListener(v -> showLogoutDialog());
     }
 
-    private void disableButton(Button button) {
+    private void hideButton(Button button) {
         button.setBackgroundColor(getResources().getColor(R.color.greyText));
-        button.setEnabled(false);
+        button.setVisibility(View.GONE);
     }
 
     private void showLogoutDialog() {

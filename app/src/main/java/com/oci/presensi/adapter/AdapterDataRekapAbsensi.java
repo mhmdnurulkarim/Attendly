@@ -43,10 +43,6 @@ public class AdapterDataRekapAbsensi extends RecyclerView.Adapter<AdapterDataRek
             intent.putExtra("idUser", akun.getIdUser());
             context.startActivity(intent);
         });
-
-//        holder.itemView.setOnLongClickListener(v -> {
-//            return true;
-//        });
     }
 
     @Override
