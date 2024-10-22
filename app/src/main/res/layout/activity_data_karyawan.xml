@@ -68,5 +68,6 @@
         app:rippleColor="@color/greenText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add" />
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/black"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

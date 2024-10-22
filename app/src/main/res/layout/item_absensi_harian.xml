@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/inter_regular"
-            android:text="ID"
+            android:text="DATANG"
             android:textColor="@color/greenText"
             android:textSize="18sp" />
 
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/inter_regular"
-            android:text="-"
+            android:text="10 Oktober 2024  07:50:12"
             android:textColor="@color/lightBlackText"
             android:textSize="18sp" />
     </LinearLayout>

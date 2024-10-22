@@ -11,7 +11,8 @@
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:backgroundTint="@color/greenBackground"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/white"
         app:cardBackgroundColor="@android:color/darker_gray"
         app:cardCornerRadius="0dp"
         app:cardElevation="16dp"
@@ -31,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_bold"
                 android:text="PERGUDANGAN LIO ASRI\nBARU TANGERANG"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="18sp" />
 
             <TextView
@@ -41,7 +42,7 @@
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/inter_semibold"
                 android:text="DATA ABSENSI HARIAN"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="18sp" />
 
             <TextView
@@ -50,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_semibold"
                 android:text="Periode Oktober 2024"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="12sp" />
 
         </LinearLayout>

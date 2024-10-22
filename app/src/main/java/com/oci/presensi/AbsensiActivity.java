@@ -41,7 +41,8 @@ public class AbsensiActivity extends AppCompatActivity {
         initializeAbsensiList();
 
         setupKaryawanInfo();
-        setupButtonListeners();
+        setupDatangButton();
+        setupPulangButton();
 
         setupBackPressedHandler();
     }
@@ -69,35 +70,13 @@ public class AbsensiActivity extends AppCompatActivity {
         binding.txtRoleKaryawan.setText("Role Karyawan : " + PreferenceUtils.getIdRole(getApplicationContext()));
     }
 
-    private void setupButtonListeners() {
-        String now = getTime();
-
-        if (isDatangTime(now)) {
-            setupDatangButton();
-        } else if (isPulangTime(now)) {
-            setupPulangButton();
-        } else {
-            disableButtons();
-        }
-    }
-
-    private boolean isDatangTime(String now) {
-        return now.compareTo("06:00") >= 0 && now.compareTo("16:00") <= 0;
-    }
-
-    private boolean isPulangTime(String now) {
-        return now.compareTo("16:00") >= 0 && now.compareTo("21:00") <= 0;
-    }
-
     private void setupDatangButton() {
         String keterangan;
         binding.btnDatang.setEnabled(true);
         binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greenText));
-        binding.btnPulang.setEnabled(false);
-        binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
 
         String now = getTime();
-        if (now.compareTo("08:00") >= 0 && now.compareTo("16:00") <= 0) {
+        if (now.compareTo("08:00") >= 0 && now.compareTo("15:59") <= 0) {
             keterangan = "Datang (Terlambat)";
         } else {
             keterangan = "Datang";
@@ -106,18 +85,9 @@ public class AbsensiActivity extends AppCompatActivity {
     }
 
     private void setupPulangButton() {
-        binding.btnDatang.setEnabled(false);
-        binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
         binding.btnPulang.setEnabled(true);
         binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.redText));
         binding.btnPulang.setOnClickListener(v -> handleAbsensi("Pulang"));
-    }
-
-    private void disableButtons() {
-        binding.btnDatang.setEnabled(false);
-        binding.btnDatang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
-        binding.btnPulang.setEnabled(false);
-        binding.btnPulang.setBackgroundColor(ContextCompat.getColor(this, R.color.greyText));
     }
 
     private void handleAbsensi(String keterangan) {

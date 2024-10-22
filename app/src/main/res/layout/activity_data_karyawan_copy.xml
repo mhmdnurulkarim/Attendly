@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".DataRekapAbsensiActivity">
+    tools:context=".DataKaryawanActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:backgroundTint="@color/greenBackground"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/white"
         app:cardBackgroundColor="@android:color/darker_gray"
         app:cardCornerRadius="0dp"
         app:cardElevation="16dp"
@@ -31,33 +32,24 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_bold"
                 android:text="PERGUDANGAN LIO ASRI\nBARU TANGERANG"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/textTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/inter_semibold"
-                android:text="DATA ABSENSI HARIAN"
-                android:textColor="@color/white"
+                android:text="@string/data_karyawan"
+                android:textColor="@color/black"
                 android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/txtPeriode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/inter_semibold"
-                android:text="Periode Oktober 2024"
-                android:textColor="@color/white"
-                android:textSize="12sp" />
-
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDataRekapAbsensi"
+        android:id="@+id/rvDataKaryawan"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -65,5 +57,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/card"
-        tools:listitem="@layout/item_absensi" />
+        tools:listitem="@layout/item_karyawan" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        app:backgroundTint="@color/greyText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/greenText"
+        app:srcCompat="@drawable/ic_add"
+        app:tint="@color/black" />
 </androidx.constraintlayout.widget.ConstraintLayout>
