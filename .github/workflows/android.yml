@@ -1,0 +1,56 @@
+name: Android CI & Release
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]        # trigger rilis saat push tag v*
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pakai JDK 17 untuk AGP 8+. Kalau proyekmu masih AGP 7.x, ganti ke '11'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Build APK debug agar tidak perlu keystore dulu
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      # Simpan artifact agar bisa dipakai di job 'release'
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk   # ganti 'app' jika modulmu beda
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')   # hanya jalan saat push tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug.apk
+          path: dist
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/app-debug.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # disediakan otomatis oleh GitHub
